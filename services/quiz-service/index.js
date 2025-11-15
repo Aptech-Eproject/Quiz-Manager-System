@@ -4,7 +4,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 const compression = require('compression');
 const morgan = require('morgan');
-const db = require('../models');
+const db = require('./models');
 
 dotenv.config();
 const app = express();
