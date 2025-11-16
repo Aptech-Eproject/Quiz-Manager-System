@@ -65,10 +65,19 @@ jobs:
 
       - name: Check services health
         run: |
-          curl -f http://localhost:8000 || exit 1
-          curl -f http://localhost:8000/api/auth/health || exit 1
-          curl -f http://localhost:8000/api/quiz/health || exit 1
-          curl -f http://localhost:8000/api/result/health || exit 1
+          check() {
+            for i in {1..30}; do
+              echo "Checking $1 ... attempt $i"
+              curl -sf "$1" && return 0
+              sleep 2
+            done
+            return 1
+          }
+
+          check http://localhost:8000 || exit 1
+          check http://localhost:8000/api/auth/health || exit 1
+          check http://localhost:8000/api/quiz/health || exit 1
+          check http://localhost:8000/api/result/health || exit 1
 
       - name: Show logs on failure
         if: failure()
@@ -89,10 +98,23 @@ jobs:
 
       - name: Create .env files for build
         run: |
-          cp gateway/.env.example gateway/.env || echo "PORT=8000" > gateway/.env
-          cp services/auth-service/.env.example services/auth-service/.env || true
-          cp services/quiz-service/.env.example services/quiz-service/.env || true
-          cp services/result-service/.env.example services/result-service/.env || true
+          if [ -f gateway/.env.example ]; then
+            cp gateway/.env.example gateway/.env
+          else
+            echo "PORT=8000" > gateway/.env
+          fi
+
+          [ -f services/auth-service/.env.example ] \
+            && cp services/auth-service/.env.example services/auth-service/.env \
+            || touch services/auth-service/.env
+
+          [ -f services/quiz-service/.env.example ] \
+            && cp services/quiz-service/.env.example services/quiz-service/.env \
+            || touch services/quiz-service/.env
+          
+          [ -f services/result-service/.env.example ] \
+            && cp services/result-service/.env.example services/result-service/.env \
+            || touch services/result-service/.env
 
       - name: Build all images
         run: docker compose build
