@@ -1,21 +1,66 @@
-import { QueryClientProvider } from '@tanstack/react-query';
-import { queryClient } from './lib/queryClient';
 
-function App() {
+import {
+  Route,
+  Routes,
+  useLocation
+} from "react-router-dom"
+
+import PublicRoutes from "./shared/routes/PublicRoutes";
+import AdminRoutes from "./shared/routes/AdminRoutes";
+import UserRoutes from "./shared/routes/UserRoutes";
+import NotFound from './shared/pages/NotFound';
+import Footer from './shared/components/Footer';
+
+const AppLayout = () => {
+  const location = useLocation();
+
+  const hideFooterRoutes = [
+    '/login',
+    '/register',
+    '*'
+  ];
+
+  const showFooterRoutes = [
+    '/',
+    '/home',
+    '/quizzes-list',
+    '/favorite-quizzes'
+  ];
+
+  const shouldHideFooter = hideFooterRoutes.includes(location.pathname) || !showFooterRoutes.includes(location.pathname);
+
   return (
-    <QueryClientProvider client={queryClient}>
-      <div className="min-h-screen bg-gray-100">
-        <div className="container mx-auto px-4 py-8">
-          <h1 className="text-4xl font-bold text-blue-600 text-center">
-            Quiz App
-          </h1>
-          <p className="text-center mt-4 text-gray-600">
-            React + TailwindCSS + React Query
-          </p>
-        </div>
-      </div>
-    </QueryClientProvider>
-  );
+    <div className="flex flex-col min-h-screen">
+      <main className="grow">
+        {/* Public Routes */}
+        <Routes>
+          {/* Public routes */}
+          {PublicRoutes()}
+
+          {/* Admin routes */}
+          {AdminRoutes()}
+
+          {/* User routes */}
+          {UserRoutes()}
+
+          {/* Not Found Routes */}
+          <Route path='/*' element={<NotFound />} />
+        </Routes>
+      </main>
+
+      {!shouldHideFooter && (
+        <footer>
+          <Footer />
+        </footer>
+      )}
+    </div>
+  )
 }
 
-export default App;
+const App = () => {
+  return (
+    <AppLayout />
+  )
+};
+
+export default App
