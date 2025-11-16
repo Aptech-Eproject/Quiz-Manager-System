@@ -3,6 +3,11 @@
 echo "🚀 Setting up Quiz Application..."
 
 # Copy .env files if not exist
+if [ ! -f frontend/.env ]; then
+  cp frontend/.env.example frontend/.env
+  echo "✅ Created frontend/.env"
+fi
+
 if [ ! -f gateway/.env ]; then
   cp gateway/.env.example gateway/.env
   echo "✅ Created gateway/.env"

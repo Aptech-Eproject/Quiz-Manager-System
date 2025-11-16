@@ -117,7 +117,8 @@ MiniProject/
 
 | Service | Internal | External | URL |
 |---------|----------|----------|-----|
-| Frontend | 80 | 3000 | http://localhost:3000 |
+| Frontend | 80 | 3000 | http://localhost:3000 | Prod
+| Frontend | 80 | 5173 | http://localhost:5173 | Dev
 | Gateway | 8000 | 8000 | http://localhost:8000 |
 | Auth Service | 5000 | - | Internal only |
 | Quiz Service | 5001 | - | Internal only |
