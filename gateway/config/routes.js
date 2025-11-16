@@ -3,96 +3,24 @@ import { authenticate } from "../middlewares/auth.js";
 import dotenv from "dotenv";
 dotenv.config();
 
-export function registerProxies(app) {
+const authProxy = createProxyMiddleware({
+  target: process.env.AUTH_SERVICE_URL,
+  changeOrigin: true,
+  logLevel: "debug",
+  pathRewrite: (_path, req) => req.originalUrl,
+});
 
+export function registerProxies(app) {
   // --------------------------
   // PROTECTED AUTH ROUTES
   // --------------------------
-  app.use(
-    "/api/auth/profile",
-    authenticate,
-    createProxyMiddleware({
-      target: process.env.AUTH_SERVICE_URL,
-      changeOrigin: true,
-      pathRewrite: { "^/api/auth": "" },
-      logLevel: "debug",
-    })
-  );
-
-  app.use(
-    "/api/auth/set-password",
-    authenticate,
-    createProxyMiddleware({
-      target: process.env.AUTH_SERVICE_URL,
-      changeOrigin: true,
-      pathRewrite: { "^/api/auth": "" },
-      logLevel: "debug",
-    })
-  );
+  app.use("/api/auth/profile", authenticate, authProxy);
+  app.use("/api/auth/set-password", authenticate, authProxy);
 
   // --------------------------
-  // PUBLIC ROUTES – TÁCH RA TỪNG ROUTE
+  // PUBLIC AUTH ROUTES
   // --------------------------
-  app.use(
-    "/api/auth/register",
-    createProxyMiddleware({
-      target: process.env.AUTH_SERVICE_URL,
-      changeOrigin: true,
-      pathRewrite: { "^/api/auth": "" },
-      logLevel: "debug",
-    })
-  );
-
-  app.use(
-    "/api/auth/login",
-    createProxyMiddleware({
-      target: process.env.AUTH_SERVICE_URL,
-      changeOrigin: true,
-      pathRewrite: { "^/api/auth": "" },
-      logLevel: "debug",
-    })
-  );
-
-  app.use(
-    "/api/auth/google-login",
-    createProxyMiddleware({
-      target: process.env.AUTH_SERVICE_URL,
-      changeOrigin: true,
-      pathRewrite: { "^/api/auth": "" },
-      logLevel: "debug",
-    })
-  );
-
-  app.use(
-    "/api/auth/refresh",
-    createProxyMiddleware({
-      target: process.env.AUTH_SERVICE_URL,
-      changeOrigin: true,
-      pathRewrite: { "^/api/auth": "" },
-      logLevel: "debug",
-    })
-  );
-
-  app.use(
-    "/api/auth/logout",
-    createProxyMiddleware({
-      target: process.env.AUTH_SERVICE_URL,
-      changeOrigin: true,
-      pathRewrite: { "^/api/auth": "" },
-      logLevel: "debug",
-    })
-  );
-
-  app.use(
-  "/api/auth",
-  createProxyMiddleware({
-    target: process.env.AUTH_SERVICE_URL,
-    changeOrigin: true,
-    pathRewrite: { "^/api/auth": "" },
-    logLevel: "debug",
-  })
-);
-
+  app.use("/api/auth", authProxy);
 
   // --------------------------
   // QUIZ & RESULT
@@ -116,4 +44,4 @@ export function registerProxies(app) {
       logLevel: "debug",
     })
   );
-};
+}

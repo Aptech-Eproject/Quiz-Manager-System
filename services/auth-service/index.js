@@ -15,9 +15,12 @@ app.use(compression());
 app.use(morgan('dev'));
 app.use(express.json());
 
-app.get('/health', (req, res) => {
+const healthHandler = (req, res) => {
   res.json({ status: 'OK', service: 'auth-service' });
-});
+};
+
+app.get('/health', healthHandler);
+app.get('/api/auth/health', healthHandler);
 app.use('/api/auth', authRoutes);
 const PORT = process.env.PORT || 5000;
 

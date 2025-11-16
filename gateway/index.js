@@ -15,10 +15,6 @@ app.use(helmet());
 app.use(compression());
 app.use(morgan("dev"));
 app.use(requestLogger);
-app.use(express.json());
-
-
-
 app.get("/", (req, res) => {
   res.send("Gateway is running");
 });
@@ -29,4 +25,3 @@ registerProxies(app);
 app.listen(PORT, () => {
   console.log(`🚀 API Gateway running on port ${PORT}`);
 });
-

@@ -1,9 +1,13 @@
-const { hashPassword, comparePassword } = require('../lib/bcrypt');
-const { generateAccessToken, generateRefreshToken, verifyRefreshToken } = require('../lib/jwt');
-const { User, RefreshToken } = require('../models');
-const axios = require('axios');
-const { Op } = require('sequelize');
+const { hashPassword, comparePassword } = require("../lib/bcrypt");
 
+const {
+  generateAccessToken,
+  generateRefreshToken,
+  verifyRefreshToken,
+} = require("../lib/jwt");
+const { User, RefreshToken } = require("../models");
+const axios = require("axios");
+const { Op } = require("sequelize");
 
 // ============================================
 // REGISTER (email + password)
@@ -22,17 +26,35 @@ const registerUser = async ({ name, email, password }) => {
     email,
     password: hashedPassword,
     provider: "local",
-    is_password_set: true
+    is_password_set: true,
+  });
+
+  const accessToken = generateAccessToken({
+    id: newUser.id,
+    email: newUser.email,
+  });
+  
+  const refreshToken = generateRefreshToken({ 
+    id: newUser.id 
+  });
+
+  await RefreshToken.create({
+    user_id: newUser.id,
+    token: refreshToken,
+    expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
   });
 
   return {
-    id: newUser.id,
-    name: newUser.name,
-    email: newUser.email,
-    provider: newUser.provider
+    user: {
+      id: newUser.id,
+      name: newUser.name,
+      email: newUser.email,
+      provider: newUser.provider,
+    },
+    accessToken,
+    refreshToken,
   };
 };
-
 
 // ============================================
 // LOGIN (email + password)
@@ -55,12 +77,11 @@ const loginUser = async ({ email, password }) => {
   await RefreshToken.create({
     user_id: user.id,
     token: refreshToken,
-    expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+    expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
   });
 
   return { accessToken, refreshToken, user };
 };
-
 
 // ============================================
 // GOOGLE LOGIN
@@ -71,8 +92,8 @@ const googleLoginUser = async (credential) => {
 
   const { email, name, picture, sub } = data;
 
-  let user = await User.findOne({ 
-    where: { email }
+  let user = await User.findOne({
+    where: { email },
   });
 
   // Nếu chưa có user → tạo mới
@@ -83,7 +104,7 @@ const googleLoginUser = async (credential) => {
       google_id: sub,
       avatar: picture,
       provider: "google",
-      is_password_set: false
+      is_password_set: false,
     });
   }
 
@@ -100,12 +121,11 @@ const googleLoginUser = async (credential) => {
   await RefreshToken.create({
     user_id: user.id,
     token: refreshToken,
-    expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+    expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
   });
 
   return { accessToken, refreshToken, user };
 };
-
 
 // ============================================
 // SET PASSWORD FOR GOOGLE USER (Lần đầu tiên)
@@ -128,7 +148,6 @@ const setPasswordForGoogleUser = async (userId, newPassword) => {
   return { message: "Đặt mật khẩu thành công" };
 };
 
-
 // ============================================
 // REFRESH ACCESS TOKEN
 // ============================================
@@ -138,8 +157,8 @@ const refreshToken = async (token) => {
   const saved = await RefreshToken.findOne({
     where: {
       user_id: decoded.id,
-      token
-    }
+      token,
+    },
   });
 
   if (!saved) throw new Error("Refresh token không hợp lệ");
@@ -149,7 +168,6 @@ const refreshToken = async (token) => {
   return { accessToken: newAccess };
 };
 
-
 // ============================================
 // LOGOUT (revoke refresh token)
 // ============================================
@@ -158,20 +176,18 @@ const logout = async (token) => {
   return { message: "Đăng xuất thành công" };
 };
 
-
 // ============================================
 // GET PROFILE
 // Gateway đã verify JWT, req.user.id đã có
 // ============================================
 const getUserProfile = async (userId) => {
   const user = await User.findByPk(userId, {
-    attributes: { exclude: ["password"] }
+    attributes: { exclude: ["password"] },
   });
 
   if (!user) throw new Error("Không tìm thấy user");
   return user;
 };
-
 
 module.exports = {
   registerUser,
@@ -180,5 +196,5 @@ module.exports = {
   setPasswordForGoogleUser,
   refreshToken,
   logout,
-  getUserProfile
+  getUserProfile,
 };
