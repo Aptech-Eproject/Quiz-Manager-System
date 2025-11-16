@@ -4,7 +4,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 const compression = require('compression');
 const morgan = require('morgan');
-const db = require('../models');
+const db = require('./models');
 
 dotenv.config();
 const app = express();
@@ -16,13 +16,13 @@ app.use(morgan('dev'));
 app.use(express.json());
 
 app.get('/health', (req, res) => {
-  res.json({ status: 'OK', service: 'result-service' });
+  res.json({ status: 'OK', service: 'quiz-service' });
 });
 
-const PORT = process.env.PORT || 5002;
+const PORT = process.env.PORT || 5001;
 
 db.sequelize.sync().then(() => {
   app.listen(PORT, () => {
-    console.log(`📊 Result Service running on port ${PORT}`);
+    console.log(`🧠 Quiz Service running on port ${PORT}`);
   });
 });
