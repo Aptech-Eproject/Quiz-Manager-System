@@ -183,7 +183,7 @@ const QuizBuilder = () => {
         }
 
         try {
-            setSaving(true);
+            // setSaving(true);
 
             // Prepare data for API
             const questionData = {
@@ -254,7 +254,7 @@ const QuizBuilder = () => {
             console.error('❌ Failed to save question:', err);
             alert(`Failed to save question: ${err.response?.data?.message || err.message}`);
         } finally {
-            setSaving(false);
+            // setSaving(false);
         }
     };
 
