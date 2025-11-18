@@ -12,7 +12,7 @@ export default function AdminRoutes() {
     return (
         <>
             <Route
-                element={<ProtectedRouter />} allowedRoles={['admin']}
+                element={<ProtectedRouter allowedRoles={['admin']} />}
             >
                 {/* <Route path='/admin/' element={<AdminLayout />}> */}
                 <Route path='/admin/'>

@@ -4,14 +4,17 @@ import {
   Routes,
   useLocation
 } from "react-router-dom"
+import { useEffect } from "react";
 
 import PublicRoutes from "./shared/routes/PublicRoutes";
 import AdminRoutes from "./shared/routes/AdminRoutes";
 import UserRoutes from "./shared/routes/UserRoutes";
 import NotFound from './shared/pages/NotFound';
+import Forbidden from './shared/pages/Forbidden';
 import Footer from './shared/components/Footer';
 import 'react-toastify/dist/ReactToastify.css';
 import { ToastContainer } from 'react-toastify';
+import { useAuthStore } from './features/auth/stores/authStore';
 
 const AppLayout = () => {
   const location = useLocation();
@@ -19,6 +22,7 @@ const AppLayout = () => {
   const hideFooterRoutes = [
     '/login',
     '/register',
+    '/set-password',
     '*'
   ];
 
@@ -45,7 +49,8 @@ const AppLayout = () => {
           {/* User routes */}
           {UserRoutes()}
 
-          {/* Not Found Routes */}
+          {/* Error Routes */}
+          <Route path='/403' element={<Forbidden />} />
           <Route path='/*' element={<NotFound />} />
         </Routes>
       </main>
@@ -60,10 +65,26 @@ const AppLayout = () => {
 }
 
 const App = () => {
+  const { initAuth } = useAuthStore();
+
+  useEffect(() => {
+    initAuth();
+  }, [initAuth]);
+
   return (
     <div>
       <AppLayout />
-      <ToastContainer />
+      <ToastContainer 
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
     </div>
   )
 };
