@@ -51,7 +51,10 @@ PORT=8000
 AUTH_SERVICE_URL=http://auth-service:5000
 QUIZ_SERVICE_URL=http://quiz-service:5001
 RESULT_SERVICE_URL=http://result-service:5002
+JWT_ACCESS_SECRET=super_access_secret_key_2024_change_in_production
 ```
+
+Sao chép file `.env.example` thành `.env` và đảm bảo `JWT_ACCESS_SECRET` trùng với cấu hình nằm trong Auth Service để Gateway có thể verify access token trước khi proxy.
 
 ### Cấu trúc Routes
 - `/api/auth/*` → Auth Service

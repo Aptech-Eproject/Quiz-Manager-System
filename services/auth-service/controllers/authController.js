@@ -129,11 +129,28 @@ const logout = async (req, res) => {
 // Gateway đã decode Access Token → req.user
 const getProfile = async (req, res) => {
   try {
-    const userId = req.user.id;
+    if (!req.user || !req.user.id) {
+      return error(res, "Không xác thực được người dùng", 401);
+    }
 
-    const profile = await authService.getUserProfile(userId);
+    const profile = await authService.getUserProfile(req.user.id);
+    const profileData = (profile && typeof profile.toJSON === "function")
+      ? profile.toJSON()
+      : profile;
 
-    return success(res, profile, "Lấy profile thành công");
+    const sanitizedProfile = {
+      id: profileData.id,
+      name: profileData.name,
+      email: profileData.email,
+      avatar: profileData.avatar,
+      provider: profileData.provider,
+      role: profileData.role,
+      is_password_set: profileData.is_password_set,
+      created_at: profileData.createdAt,
+      updated_at: profileData.updatedAt
+    };
+
+    return success(res, sanitizedProfile, "Lấy profile thành công");
 
   } catch (err) {
     return error(res, err.message, 400);

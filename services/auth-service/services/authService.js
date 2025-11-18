@@ -182,11 +182,21 @@ const logout = async (token) => {
 // ============================================
 const getUserProfile = async (userId) => {
   const user = await User.findByPk(userId, {
-    attributes: { exclude: ["password"] },
+    attributes: [
+      "id",
+      "name",
+      "email",
+      "avatar",
+      "provider",
+      "role",
+      "is_password_set",
+      "createdAt",
+      "updatedAt"
+    ],
   });
 
   if (!user) throw new Error("Không tìm thấy user");
-  return user;
+  return user.get({ plain: true });
 };
 
 module.exports = {
