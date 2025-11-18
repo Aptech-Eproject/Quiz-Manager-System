@@ -9,154 +9,182 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+// import axios from '../../../shared/utils/axios';
 
 import Pagination from "../../../shared/components/Pagination";
 import AdminQuizCardList from "../components/AdminQuizCardList";
 import AdminQuizCardGrid from "../components/AdminQuizCardGrid";
+import { quizAPI } from "../../../shared/services/api";
+import AdminHeader from "../../../shared/components/AdminHeader";
 
 export default function QuizzesList() {
     const user = 'name';
 
+    const [quizzes, setQuizzes] = useState([]);
+
     const [showFilters, setShowFilters] = useState(false);
     const [viewMode, setViewMode] = useState('grid');
+    const [loading, setLoading] = useState(false);
 
     const [selectedCategory, setSelectedCategory] = useState('All');
     const [selectedDifficulty, setSelectedDifficulty] = useState('All');
     const [status, setStatus] = useState('popular');
 
-    const quizzes = [
-        {
-            id: 1,
-            title: "JavaScript Fundamentals",
-            description: "Test your knowledge of JavaScript basics and ES6 features",
-            questions: 25,
-            difficulty: "Intermediate",
-            participants: 1234,
-            rating: 4.8,
-            duration: "30 min",
-            category: "Programming",
-            image: "https://images.unsplash.com/photo-1627398242454-45a1465c2479?w=400&h=250&fit=crop",
-            trending: true,
-            status: 'DRAFT'
-        },
-        {
-            id: 2,
-            title: "World History",
-            description: "Journey through major historical events and civilizations",
-            questions: 40,
-            difficulty: "Advanced",
-            participants: 892,
-            rating: 4.6,
-            duration: "45 min",
-            category: "History",
-            image: "https://images.unsplash.com/photo-1461360370896-922624d12aa1?w=400&h=250&fit=crop",
-            status: 'DRAFT'
-        },
-        {
-            id: 3,
-            title: "Basic Mathematics",
-            description: "Essential math concepts for everyday problem solving",
-            questions: 20,
-            difficulty: "Beginner",
-            participants: 2156,
-            rating: 4.9,
-            duration: "20 min",
-            category: "Mathematics",
-            image: "https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=400&h=250&fit=crop",
-            featured: true,
-            status: 'DRAFT'
-        },
-        {
-            id: 4,
-            title: "Python Programming",
-            description: "Master Python syntax, data structures, and algorithms",
-            questions: 35,
-            difficulty: "Intermediate",
-            participants: 1567,
-            rating: 4.7,
-            duration: "40 min",
-            category: "Programming",
-            image: "https://images.unsplash.com/photo-1526379095098-d400fd0bf935?w=400&h=250&fit=crop",
-            status: 'DRAFT'
-        },
-        {
-            id: 5,
-            title: "Biology Basics",
-            description: "Explore cells, genetics, and human body systems",
-            questions: 30,
-            difficulty: "Beginner",
-            participants: 945,
-            rating: 4.5,
-            duration: "35 min",
-            category: "Science",
-            image: "https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?w=400&h=250&fit=crop",
-            status: 'DRAFT'
-        },
-        {
-            id: 6,
-            title: "English Grammar",
-            description: "Perfect your grammar skills with comprehensive exercises",
-            questions: 28,
-            difficulty: "Intermediate",
-            participants: 1823,
-            rating: 4.8,
-            duration: "25 min",
-            category: "Languages",
-            image: "https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=400&h=250&fit=crop",
-            trending: true,
-            status: 'Public'
-        },
-        {
-            id: 7,
-            title: "World Geography",
-            description: "Test your knowledge of countries, capitals, and landmarks",
-            questions: 50,
-            difficulty: "Advanced",
-            participants: 678,
-            rating: 4.4,
-            duration: "50 min",
-            category: "Geography",
-            image: "https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?w=400&h=250&fit=crop",
-            status: 'Public'
-        },
-        {
-            id: 8,
-            title: "Art History",
-            description: "Discover famous artworks, artists, and art movements",
-            questions: 22,
-            difficulty: "Intermediate",
-            participants: 534,
-            rating: 4.6,
-            duration: "28 min",
-            category: "Arts",
-            image: "https://images.unsplash.com/photo-1460661419201-fd4cecdf8a8b?w=400&h=250&fit=crop",
-            status: 'Public'
-        },
-        {
-            id: 9,
-            title: "Physics Fundamentals",
-            description: "Understand mechanics, energy, and basic physics principles",
-            questions: 32,
-            difficulty: "Advanced",
-            participants: 1089,
-            rating: 4.7,
-            duration: "42 min",
-            category: "Science",
-            image: "https://images.unsplash.com/photo-1636466497217-26a8cbeaf0aa?w=400&h=250&fit=crop",
-            status: 'Public'
-        }
-    ];
+    // const quizzes = [
+    //     {
+    //         id: 1,
+    //         title: "JavaScript Fundamentals",
+    //         description: "Test your knowledge of JavaScript basics and ES6 features",
+    //         questions: 25,
+    //         level: "Intermediate",
+    //         participants: 1234,
+    //         rating: 4.8,
+    //         duration: "30 min",
+    //         category: "Programming",
+    //         image: "https://images.unsplash.com/photo-1627398242454-45a1465c2479?w=400&h=250&fit=crop",
+    //         trending: true,
+    //         status: 'DRAFT'
+    //     },
+    //     {
+    //         id: 2,
+    //         title: "World History",
+    //         description: "Journey through major historical events and civilizations",
+    //         questions: 40,
+    //         level: "Advanced",
+    //         participants: 892,
+    //         rating: 4.6,
+    //         duration: "45 min",
+    //         category: "History",
+    //         image: "https://images.unsplash.com/photo-1461360370896-922624d12aa1?w=400&h=250&fit=crop",
+    //         status: 'DRAFT'
+    //     },
+    //     {
+    //         id: 3,
+    //         title: "Basic Mathematics",
+    //         description: "Essential math concepts for everyday problem solving",
+    //         questions: 20,
+    //         level: "Beginner",
+    //         participants: 2156,
+    //         rating: 4.9,
+    //         duration: "20 min",
+    //         category: "Mathematics",
+    //         image: "https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=400&h=250&fit=crop",
+    //         featured: true,
+    //         status: 'DRAFT'
+    //     },
+    //     {
+    //         id: 4,
+    //         title: "Python Programming",
+    //         description: "Master Python syntax, data structures, and algorithms",
+    //         questions: 35,
+    //         level: "Intermediate",
+    //         participants: 1567,
+    //         rating: 4.7,
+    //         duration: "40 min",
+    //         category: "Programming",
+    //         image: "https://images.unsplash.com/photo-1526379095098-d400fd0bf935?w=400&h=250&fit=crop",
+    //         status: 'DRAFT'
+    //     },
+    //     {
+    //         id: 5,
+    //         title: "Biology Basics",
+    //         description: "Explore cells, genetics, and human body systems",
+    //         questions: 30,
+    //         level: "Beginner",
+    //         participants: 945,
+    //         rating: 4.5,
+    //         duration: "35 min",
+    //         category: "Science",
+    //         image: "https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?w=400&h=250&fit=crop",
+    //         status: 'DRAFT'
+    //     },
+    //     {
+    //         id: 6,
+    //         title: "English Grammar",
+    //         description: "Perfect your grammar skills with comprehensive exercises",
+    //         questions: 28,
+    //         level: "Intermediate",
+    //         participants: 1823,
+    //         rating: 4.8,
+    //         duration: "25 min",
+    //         category: "Languages",
+    //         image: "https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=400&h=250&fit=crop",
+    //         trending: true,
+    //         status: 'Public'
+    //     },
+    //     {
+    //         id: 7,
+    //         title: "World Geography",
+    //         description: "Test your knowledge of countries, capitals, and landmarks",
+    //         questions: 50,
+    //         level: "Advanced",
+    //         participants: 678,
+    //         rating: 4.4,
+    //         duration: "50 min",
+    //         category: "Geography",
+    //         image: "https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?w=400&h=250&fit=crop",
+    //         status: 'Public'
+    //     },
+    //     {
+    //         id: 8,
+    //         title: "Art History",
+    //         description: "Discover famous artworks, artists, and art movements",
+    //         questions: 22,
+    //         level: "Intermediate",
+    //         participants: 534,
+    //         rating: 4.6,
+    //         duration: "28 min",
+    //         category: "Arts",
+    //         image: "https://images.unsplash.com/photo-1460661419201-fd4cecdf8a8b?w=400&h=250&fit=crop",
+    //         status: 'Public'
+    //     },
+    //     {
+    //         id: 9,
+    //         title: "Physics Fundamentals",
+    //         description: "Understand mechanics, energy, and basic physics principles",
+    //         questions: 32,
+    //         level: "Advanced",
+    //         participants: 1089,
+    //         rating: 4.7,
+    //         duration: "42 min",
+    //         category: "Science",
+    //         image: "https://images.unsplash.com/photo-1636466497217-26a8cbeaf0aa?w=400&h=250&fit=crop",
+    //         status: 'Public'
+    //     }
+    // ];
 
     const categories = [
-        'All',
-        'Programming',
+        'Mathematics',
         'Science',
         'History',
-        'Mathematics',
-        'Languages',
-        'Arts',
-        'Geography'
+        'English',
+        'Programming',
+        'Music',
+        'Sport',
+        'Art',
+        'Business',
+        'Healthy'
     ];
+
+    useEffect(() => {
+        const fetchQuizzes = async () => {
+            try {
+                setLoading(true);
+
+                const quizzes = await quizAPI.getAll();
+                console.log(`Quizzes: `, quizzes.data.data);
+
+                setQuizzes(quizzes.data.data);
+
+            } catch (err) {
+                console.log("Failed to fetch all quizzes:", err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchQuizzes();
+    }, []);
 
     const difficulties = [
         'All',
@@ -182,6 +210,9 @@ export default function QuizzesList() {
 
     return (
         <div className="min-h-screen bg-gray-50">
+            {/* Header */}
+            <AdminHeader />
+
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col gap-5">
                 {/* Greeting */}
                 <div className="mb-2 flex flex-col items-center gap-2 bg-white shadow-sm p-8 rounded-md text-center w-full">
@@ -295,9 +326,11 @@ export default function QuizzesList() {
                                 </div>
                             </div>
 
-                            {/* Difficulty Filter */}
+                            {/* Level Filter */}
                             <div className="flex items-center gap-2">
-                                <span className="text-sm text-gray-600 font-medium">Difficulty:</span>
+                                <span className="text-sm text-gray-600 font-medium">
+                                    Difficulty:
+                                </span>
                                 <div className="relative">
                                     <select
                                         className="appearance-none bg-gray-50 border border-gray-200 rounded-lg px-4 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
@@ -343,7 +376,9 @@ export default function QuizzesList() {
                         {/* Results Count */}
                         <div className="text-sm text-gray-600">
                             Showing {" "}
-                            <span className="font-semibold text-gray-900">{quizzes.length}</span> quizzes
+                            <span className="font-semibold text-gray-900">
+                                {/* {quizzes.length} */}
+                            </span> quizzes
                         </div>
                     </div>
 
@@ -431,6 +466,6 @@ export default function QuizzesList() {
                     <Pagination />
                 </div>
             </div>
-        </div>
+        </div >
     )
 }

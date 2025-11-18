@@ -2,7 +2,6 @@ import CreateStepOneHeader from "../components/CreateStepOneHeader";
 import CreateStepOneFooter from "../components/CreateStepOneFooter";
 
 export default function CreateStepOne({ title, setTitle }) {
-
     return (
         <>
             <div className="min-h-screen bg-gray-100 flex flex-col">

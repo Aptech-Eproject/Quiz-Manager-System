@@ -5,6 +5,7 @@ import {
 import { Link } from "react-router-dom";
 
 export default function AdminQuizCardGrid({ quiz }) {
+    const thumbnailUrl = `${import.meta.env.VITE_API_URL}/${quiz.thumbnail}`;
 
     return (
         <div className="relative bg-white rounded-xl shadow-md hover:shadow-xl transition overflow-hidden group cursor-pointer">
@@ -12,23 +13,23 @@ export default function AdminQuizCardGrid({ quiz }) {
             <div className="relative h-48">
                 {/* Image Quiz */}
                 <img
-                    src={quiz.image}
+                    src={`${thumbnailUrl}`}
                     alt={quiz.title}
                     className="w-full h-full object-cover group-hover:scale-110 transition duration-300"
                 />
 
                 {/* Annotation Quiz */}
                 <div className="absolute top-4 right-4 bg-white px-3 py-1 rounded-full text-sm font-medium">
-                    {quiz.difficulty}
+                    {quiz.level}
                 </div>
 
                 {/* Status Quiz */}
-                <div className={`absolute top-4 left-4 px-3 py-1 rounded-full text-sm font-medium text-white ${quiz.status === 'DRAFT'
+                <div className={`absolute top-4 left-4 px-3 py-1 rounded-full text-sm font-medium text-white ${quiz.status === 'draft'
                     ? `bg-yellow-500`
                     : `bg-green-500`
                     }`}>
                     <span className={`font-bold`}>
-                        {quiz.status}
+                        {quiz.status.toUpperCase()}
                     </span>
                 </div>
             </div>
@@ -41,16 +42,20 @@ export default function AdminQuizCardGrid({ quiz }) {
                 </div>
 
                 {/* Title Quiz */}
-                <h3 className="text-xl font-bold text-gray-900 mb-2">{quiz.title}</h3>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">
+                    {quiz.title}
+                </h3>
 
                 {/* Description Quiz */}
-                <p className="text-gray-600 text-sm mb-4">{quiz.description}</p>
+                <p className="text-gray-600 text-sm mb-4">
+                    {quiz.description}
+                </p>
 
                 {/* Question & Duration Card */}
                 <div className="flex items-center gap-4 text-sm text-gray-500">
                     <div className="flex items-center gap-1">
                         <BookOpen className="w-4 h-4" />
-                        {quiz.questions} questions
+                        {quiz.questions.length} questions
                     </div>
                     <div className="flex items-center gap-1 flex-1">
                         <Clock className="w-4 h-4" />
@@ -61,11 +66,11 @@ export default function AdminQuizCardGrid({ quiz }) {
 
             {/* Hover Overlay */}
             <Link
-                to='/admin/manage/quiz/1'
+                to={`/admin/manage/quiz/${quiz.quizId}/builder`}
                 className="absolute inset-0 flex items-center justify-center 
-          bg-gray-200/70 text-white text-lg font-semibold 
-          opacity-0 group-hover:opacity-100 transition-opacity duration-300
-          z-10 cursor-pointer"
+                bg-gray-200/70 text-white text-lg font-semibold 
+                opacity-0 group-hover:opacity-100 transition-opacity duration-300
+                z-10 cursor-pointer"
             >
                 <span className="text-blue-600 font-bold text-xl">
                     Edit / Management Quiz

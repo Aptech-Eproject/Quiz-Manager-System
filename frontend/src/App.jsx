@@ -10,6 +10,8 @@ import AdminRoutes from "./shared/routes/AdminRoutes";
 import UserRoutes from "./shared/routes/UserRoutes";
 import NotFound from './shared/pages/NotFound';
 import Footer from './shared/components/Footer';
+import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer } from 'react-toastify';
 
 const AppLayout = () => {
   const location = useLocation();
@@ -59,7 +61,10 @@ const AppLayout = () => {
 
 const App = () => {
   return (
-    <AppLayout />
+    <div>
+      <AppLayout />
+      <ToastContainer />
+    </div>
   )
 };
 

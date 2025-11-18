@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 
-export default function QuizBuilderSidebar() {
+export default function QuizBuilderSidebar({ quizId }) {
     const location = useLocation();
     const checkActive = (path) => location.pathname === path;
 
@@ -13,9 +13,9 @@ export default function QuizBuilderSidebar() {
                         Create your quiz
                     </p>
                     <Link
-                        to='/admin/manage/quiz/1/builder'
+                        to={`/admin/manage/quiz/${quizId}/builder`}
                         className={`py-1.5 px-9 text-left text-[16px] cursor-pointer hover:bg-gray-200 
-                            ${checkActive(`/admin/manage/quiz/1/builder`) ? `border-l-4` : ''}`}
+                            ${checkActive(`/admin/manage/quiz/${quizId}/builder`) ? `border-l-4` : ''}`}
                     >
                         Builder
                     </Link>
@@ -27,9 +27,9 @@ export default function QuizBuilderSidebar() {
                         Manage your course
                     </p>
                     <Link
-                        to='/admin/manage/quiz/1/statistics'
+                        to={`/admin/manage/quiz/${quizId}/statistics`}
                         className={`py-1.5 px-9 text-left text-[16px] cursor-pointer hover:bg-gray-200
-                        ${checkActive(`/admin/manage/quiz/1/statistics`) ? `border-l-4` : ''}`}
+                        ${checkActive(`/admin/manage/quiz/${quizId}/statistics`) ? `border-l-4` : ''}`}
                     >
                         Statistics
                     </Link>

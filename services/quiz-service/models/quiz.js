@@ -1,37 +1,36 @@
 'use strict';
+const { Model } = require('sequelize');
 
-const {
-  Model
-} = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class Quiz extends Model {
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
     static associate(models) {
-      // Quiz belongs to Category
-      Quiz.belongsTo(models.Category, {
-        foreignKey: 'categoryId',
-        as: 'category'
-      });
-
       // Quiz has many Questions
       Quiz.hasMany(models.Question, {
-        foreignKey: 'questionId',
-        as: 'questions'
-      })
+        foreignKey: 'quizId',
+        as: 'questions',
+      });
     }
   }
+
   Quiz.init({
     quizId: {
       type: DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true
     },
-    categoryId: {
-      type: DataTypes.INTEGER,
+    category: {
+      type: DataTypes.ENUM(
+        'Mathematics',
+        'Science',
+        'History',
+        'English',
+        'Programming',
+        'Music',
+        'Sport',
+        'Art',
+        'Business',
+        'Healthy'
+      ),
       allowNull: false
     },
     title: {
@@ -40,7 +39,9 @@ module.exports = (sequelize, DataTypes) => {
     },
     description: DataTypes.TEXT,
     duration: DataTypes.INTEGER,
-    level: DataTypes.STRING,
+    level: {
+      type: DataTypes.ENUM('beginner', 'intermediate', 'advanced'),
+    },
     thumbnail: DataTypes.STRING,
     pass_score: DataTypes.INTEGER,
     status: {

@@ -14,20 +14,15 @@ export default function AdminRoutes() {
             <Route
                 element={<ProtectedRouter />} allowedRoles={['admin']}
             >
-                <Route path='/admin/' element={<AdminLayout />}>
+                {/* <Route path='/admin/' element={<AdminLayout />}> */}
+                <Route path='/admin/'>
                     <Route index element={<Navigate to='/admin/quizzes-list' />} />
                     <Route path='quizzes-list' element={<AdminQuizzesList />} />
                     <Route path='create-quiz/*' element={<CreateQuizRouter />} />
 
-                    {/* lúc code sửa 1 => quizId */}
-
-                    {/* <Route path='/:quizId/manage/builder' element={<QuizBuilder />} /> */}
-                    {/* <Route path='/:quizId/manage/stats' element={<QuizStats />} /> */}
-
                     <Route path="manage/" element={<QuizManageLayout />}>
-                        <Route path='quiz/1/' element={<Navigate to='/admin/manage/quiz/1/builder' />} />
-                        <Route path='quiz/1/builder' element={<QuizBuilder />} />
-                        <Route path='quiz/1/statistics' element={<QuizStats />} />
+                        <Route path='quiz/:quizId/builder' element={<QuizBuilder />} />
+                        <Route path='quiz/:quizId/statistics' element={<QuizStats />} />
                     </Route>
                 </Route>
             </Route>

@@ -1,14 +1,10 @@
 import { useNavigate } from "react-router-dom";
 
-export default function CreateStepTwoFooter({ category }) {
+export default function CreateStepTwoFooter({ category, handleCreateQuiz }) {
     const navigate = useNavigate();
 
     const handlePreviousStep = () => {
         navigate("/admin/create-quiz/step-1");
-    }
-
-    const handleCreateQuiz = () => {
-        navigate("/admin/manage/quiz/1/builder");
     }
 
     return (
