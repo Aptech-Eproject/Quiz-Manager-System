@@ -5,6 +5,7 @@ import QuizzesList from '../../features/quiz/pages/QuizzesList';
 import FavoriteQuizzes from '../../features/quiz/pages/FavoriteQuizzes';
 import Login from '../../features/auth/pages/Login';
 import Register from '../../features/auth/pages/Register';
+import SetPassword from '../../features/auth/pages/SetPassword';
 
 function PublicRoutes() {
     return (
@@ -15,6 +16,7 @@ function PublicRoutes() {
 
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/set-password" element={<SetPassword />} />
         </>
     )
 }

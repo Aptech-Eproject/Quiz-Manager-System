@@ -1,16 +1,34 @@
 import {
     Star,
-    Zap
+    Zap,
+    LogOut,
+    User
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
+import { useAuthStore } from "../../features/auth/stores/authStore";
+import { useState, useEffect, useRef } from "react";
 
 export default function UserHeader() {
-    // const [showAvatar, setShowAvatar] = useState(false);
+    const { isAuthenticated, user, logout } = useAuthStore();
+    const [showDropdown, setShowDropdown] = useState(false);
+    const dropdownRef = useRef(null);
 
-    // useEffect(() => {
-    //     const user = localStorage.getItem(`user_info`);
-    //     if (user) setShowAvatar(true);
-    // }, []);
+    const handleLogout = () => {
+        logout();
+        setShowDropdown(false);
+    };
+
+    // Close dropdown when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                setShowDropdown(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
 
     const navItems = [
         {
@@ -77,22 +95,53 @@ export default function UserHeader() {
 
                     {/* Auth Buttons & Avatar */}
                     <div className="hidden md:flex items-center space-x-4">
-                        {/* Auth Buttons */}
-                        <Link
-                            to='/login'
-                            className="px-4 py-2 text-gray-700 hover:text-blue-600 font-medium transition cursor-pointer"
-                        >
-                            Login
-                        </Link>
-                        <Link
-                            to='/register'
-                            className="px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:shadow-lg transition transform hover:scale-105 cursor-pointer"
-                        >
-                            Sign Up
-                        </Link>
-
-                        {/* Avatar */}
-                        <div className="w-10 h-10 bg-gradient-to-br from-gray-300 to-gray-400 rounded-full cursor-pointer hover:ring-2 ring-blue-500 transition" />
+                        {!isAuthenticated ? (
+                            <>
+                                {/* Auth Buttons */}
+                                <Link
+                                    to='/login'
+                                    className="px-4 py-2 text-gray-700 hover:text-blue-600 font-medium transition cursor-pointer"
+                                >
+                                    Login
+                                </Link>
+                                <Link
+                                    to='/register'
+                                    className="px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:shadow-lg transition transform hover:scale-105 cursor-pointer"
+                                >
+                                    Sign Up
+                                </Link>
+                            </>
+                        ) : (
+                            <>
+                                {/* User Info */}
+                                <span className="text-gray-700 font-medium">
+                                    Xin chào, {user?.username || user?.email}
+                                </span>
+                                
+                                {/* Avatar with Dropdown */}
+                                <div className="relative" ref={dropdownRef}>
+                                    <div 
+                                        className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full cursor-pointer hover:ring-2 ring-blue-500 transition flex items-center justify-center"
+                                        onClick={() => setShowDropdown(!showDropdown)}
+                                    >
+                                        <User className="w-5 h-5 text-white" />
+                                    </div>
+                                    
+                                    {/* Dropdown Menu */}
+                                    {showDropdown && (
+                                        <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border py-2 z-50">
+                                            <button
+                                                onClick={handleLogout}
+                                                className="w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+                                            >
+                                                <LogOut className="w-4 h-4" />
+                                                Đăng xuất
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+                            </>
+                        )}
                     </div>
 
                     {/* Mobile Menu Button */}

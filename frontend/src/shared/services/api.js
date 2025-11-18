@@ -3,7 +3,11 @@ import axios from '../utils/axios';
 export const authAPI = {
   login: (credentials) => axios.post('/api/auth/login', credentials),
   register: (data) => axios.post('/api/auth/register', data),
+  googleLogin: (credential) => axios.post('/api/auth/google-login', { credential }),
   getProfile: () => axios.get('/api/auth/profile'),
+  setPassword: (newPassword) => axios.post('/api/auth/set-password', { newPassword }),
+  refresh: (refresh_token) => axios.post('/api/auth/refresh', { refresh_token }),
+  logout: (refresh_token) => axios.post('/api/auth/logout', { refresh_token }),
 };
 
 export const quizAPI = {

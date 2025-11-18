@@ -87,44 +87,55 @@ const loginUser = async ({ email, password }) => {
 // GOOGLE LOGIN
 // ============================================
 const googleLoginUser = async (credential) => {
-  const googleURL = `https://oauth2.googleapis.com/tokeninfo?id_token=${credential}`;
-  const { data } = await axios.get(googleURL);
+  console.log('🔍 Google credential received:', credential?.substring(0, 50) + '...');
+  
+  try {
+    const googleURL = `https://oauth2.googleapis.com/tokeninfo?id_token=${credential}`;
+    console.log('🌐 Calling Google API:', googleURL.substring(0, 80) + '...');
+    
+    const { data } = await axios.get(googleURL);
+    console.log('✅ Google API response:', { email: data.email, name: data.name, sub: data.sub });
+    
+    const { email, name, picture, sub } = data;
 
-  const { email, name, picture, sub } = data;
-
-  let user = await User.findOne({
-    where: { email },
-  });
-
-  // Nếu chưa có user → tạo mới
-  if (!user) {
-    user = await User.create({
-      name,
-      email,
-      google_id: sub,
-      avatar: picture,
-      provider: "google",
-      is_password_set: false,
+    let user = await User.findOne({
+      where: { email },
     });
+
+    // Nếu chưa có user → tạo mới
+    if (!user) {
+      user = await User.create({
+        name,
+        email,
+        google_id: sub,
+        avatar: picture,
+        provider: "google",
+        is_password_set: false,
+      });
+    }
+
+    // Nếu có user local → chuyển thành hybrid
+    if (user.provider === "local" && !user.google_id) {
+      user.google_id = sub;
+      user.provider = "google";
+      await user.save();
+    }
+
+    const accessToken = generateAccessToken({ id: user.id });
+    const refreshToken = generateRefreshToken({ id: user.id });
+
+    await RefreshToken.create({
+      user_id: user.id,
+      token: refreshToken,
+      expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+    });
+
+    console.log('✅ Google login successful for:', email);
+    return { accessToken, refreshToken, user };
+  } catch (error) {
+    console.error('❌ Google login error:', error.response?.data || error.message);
+    throw error;
   }
-
-  // Nếu có user local → chuyển thành hybrid
-  if (user.provider === "local" && !user.google_id) {
-    user.google_id = sub;
-    user.provider = "google";
-    await user.save();
-  }
-
-  const accessToken = generateAccessToken({ id: user.id });
-  const refreshToken = generateRefreshToken({ id: user.id });
-
-  await RefreshToken.create({
-    user_id: user.id,
-    token: refreshToken,
-    expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-  });
-
-  return { accessToken, refreshToken, user };
 };
 
 // ============================================
