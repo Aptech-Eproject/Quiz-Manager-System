@@ -24,7 +24,7 @@ export const useAuth = () => {
   const loginMutation = useMutation({
     mutationFn: authAPI.login,
     onSuccess: (response) => {
-      const { user, access_token, refresh_token } = response.data;
+      const { user, access_token, refresh_token } = response.data?.data || {};
       setAuth(user, access_token, refresh_token);
       toast.success('Đăng nhập thành công!');
     },
@@ -46,7 +46,7 @@ export const useAuth = () => {
   const googleLoginMutation = useMutation({
     mutationFn: authAPI.googleLogin,
     onSuccess: (response) => {
-      const { user, access_token, refresh_token } = response.data;
+      const { user, access_token, refresh_token } = response.data?.data || {};
       setAuth(user, access_token, refresh_token);
       toast.success('Đăng nhập Google thành công!');
     },
@@ -68,7 +68,7 @@ export const useAuth = () => {
   const refreshMutation = useMutation({
     mutationFn: authAPI.refresh,
     onSuccess: (response) => {
-      const { accessToken } = response.data;
+      const { accessToken } = response.data?.data || {};
       const { refreshToken } = useAuthStore.getState();
       setAuth(useAuthStore.getState().user, accessToken, refreshToken);
     },

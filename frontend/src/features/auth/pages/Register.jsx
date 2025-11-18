@@ -6,7 +6,7 @@ import {
     Mail,
     Lock
 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { toast } from 'react-toastify';
@@ -23,6 +23,7 @@ export default function Register() {
     const [agreedToTerms, setAgreedToTerms] = useState(false);
     const navigate = useNavigate();
     const { registerMutation, googleLoginMutation } = useAuth();
+    const { mutate: triggerGoogleSignup } = googleLoginMutation;
 
     const handleChange = (e) => {
         setFormData({
@@ -50,7 +51,8 @@ export default function Register() {
             return;
         }
 
-        const { confirmPassword, ...registerData } = formData;
+        const registerData = { ...formData };
+        delete registerData.confirmPassword;
         registerMutation.mutate(registerData, {
             onSuccess: () => {
                 navigate('/login');
@@ -64,15 +66,15 @@ export default function Register() {
         }
     };
 
-    const handleGoogleResponse = (response) => {
+    const handleGoogleResponse = useCallback((response) => {
         if (response.credential) {
-            googleLoginMutation.mutate(response.credential, {
+            triggerGoogleSignup(response.credential, {
                 onSuccess: () => {
                     navigate('/');
                 }
             });
         }
-    };
+    }, [navigate, triggerGoogleSignup]);
 
     useEffect(() => {
         window.scrollTo({
@@ -103,7 +105,7 @@ export default function Register() {
                 document.head.removeChild(script);
             }
         };
-    }, []);
+    }, [handleGoogleResponse]);
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 flex items-center justify-center px-4 py-8">

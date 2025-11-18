@@ -3,7 +3,7 @@ import {
     EyeOff,
     Zap
 } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { useAuthStore } from '../stores/authStore';
@@ -14,22 +14,31 @@ export default function Login() {
     const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate();
     const { loginMutation, googleLoginMutation } = useAuth();
-    const { isAuthenticated } = useAuthStore();
+    const { mutate: triggerGoogleLogin } = googleLoginMutation;
+    const { isAuthenticated, user } = useAuthStore();
+    const handleGoogleResponse = useCallback((response) => {
+        console.log('🔍 Google response:', response);
+        if (response.credential) {
+            console.log('🚀 Sending credential to backend:', response.credential.substring(0, 50) + '...');
+            triggerGoogleLogin(response.credential);
+        } else {
+            console.error('❌ No credential in Google response');
+        }
+    }, [triggerGoogleLogin]);
 
     // Handle successful login
     useEffect(() => {
         if (loginMutation.isSuccess) {
             navigate('/', { replace: true });
         }
-        if (googleLoginMutation.isSuccess) {
-            const user = googleLoginMutation.data?.data?.user;
-            if (user?.provider === 'google' && !user?.is_password_set) {
+        if (googleLoginMutation.isSuccess && user) {
+            if (user.provider === 'google' && !user.is_password_set) {
                 navigate('/set-password', { replace: true });
             } else {
                 navigate('/', { replace: true });
             }
         }
-    }, [loginMutation.isSuccess, googleLoginMutation.isSuccess, googleLoginMutation.data, navigate]);
+    }, [loginMutation.isSuccess, googleLoginMutation.isSuccess, user, navigate]);
 
     // Load Google Sign-In script
     useEffect(() => {
@@ -64,17 +73,7 @@ export default function Login() {
                 document.head.removeChild(script);
             }
         };
-    }, []);
-
-    const handleGoogleResponse = (response) => {
-        console.log('🔍 Google response:', response);
-        if (response.credential) {
-            console.log('🚀 Sending credential to backend:', response.credential.substring(0, 50) + '...');
-            googleLoginMutation.mutate(response.credential);
-        } else {
-            console.error('❌ No credential in Google response');
-        }
-    };
+    }, [handleGoogleResponse]);
 
     // Redirect if already authenticated
     if (isAuthenticated) {
@@ -88,10 +87,6 @@ export default function Login() {
             return;
         }
         loginMutation.mutate({ email, password });
-    };
-
-    const handleGoogleLogin = () => {
-        // This function is no longer needed as button auto-renders
     };
 
     return (
