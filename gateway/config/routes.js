@@ -30,8 +30,29 @@ export function registerProxies(app) {
     createProxyMiddleware({
       target: process.env.QUIZ_SERVICE_URL,
       changeOrigin: true,
-      pathRewrite: { "^/api/quiz": "" },
+      // ❌ No strip prefix
+      // pathRewrite: { "^/api/quiz": "" }, 
+
+      // ✅ Giữ path
+      pathRewrite: (_path, req) => req.originalUrl,
       logLevel: "debug",
+    })
+  );
+
+  app.use(
+    "/uploads",
+    createProxyMiddleware({
+      target: process.env.QUIZ_SERVICE_URL,
+      changeOrigin: true,
+      pathRewrite: (_path, req) => req.originalUrl,
+      logLevel: "debug",
+
+      onProxyRes: function (proxyRes, req, res) {
+        proxyRes.headers['Access-Control-Allow-Origin'] = '*';
+        proxyRes.headers['Access-Control-Allow-Methods'] = 'GET, OPTIONS';
+        proxyRes.headers['Access-Control-Allow-Headers'] = 'Content-Type';
+        proxyRes.headers['Cross-Origin-Resource-Policy'] = 'cross-origin';
+      }
     })
   );
 

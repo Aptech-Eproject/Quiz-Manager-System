@@ -7,6 +7,9 @@ import {
 import { Link } from "react-router-dom";
 
 export default function QuizCardList({ quiz }) {
+    const thumbnailUrl = `${import.meta.env.VITE_API_URL}/${quiz.thumbnail}`;
+    console.log(thumbnailUrl);
+
     return (
         <div
             key={quiz.id}
@@ -16,7 +19,7 @@ export default function QuizCardList({ quiz }) {
                 {/* Thumbnail Quiz */}
                 <div className="relative w-full sm:w-70 h-32 sm:h-auto shrink-0 overflow-hidden">
                     <img
-                        src={quiz.image}
+                        src={thumbnailUrl}
                         alt={quiz.title}
                         className="w-full h-full object-cover"
                     />
@@ -44,7 +47,7 @@ export default function QuizCardList({ quiz }) {
                     <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500 mb-7">
                         <div className="flex items-center gap-1">
                             <BookOpen className="w-4 h-4" />
-                            {quiz.questions} questions
+                            {quiz.questions.length} questions
                         </div>
                         <div className="flex items-center gap-1">
                             <Clock className="w-4 h-4" />
@@ -68,11 +71,11 @@ export default function QuizCardList({ quiz }) {
                                     <span className="text-gray-600">
                                         Status: {" "}
                                     </span>
-                                    <span className={`font-bold ${quiz.status === 'DRAFT'
+                                    <span className={`font-bold ${quiz.status === 'draft'
                                         ? `text-yellow-600`
                                         : `text-green-600`
                                         } `}>
-                                        {quiz.status}
+                                        {quiz.status.toUpperCase()}
                                     </span>
                                 </div>
                             )}

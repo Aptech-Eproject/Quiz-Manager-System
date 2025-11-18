@@ -9,8 +9,19 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      categoryId: {
-        type: Sequelize.INTEGER,
+      category: {
+        type: Sequelize.ENUM(
+          'Mathematics',
+          'Science',
+          'History',
+          'English',
+          'Programming',
+          'Music',
+          'Sport',
+          'Art',
+          'Business',
+          'Healthy'
+        ),
         allowNull: false,
       },
       title: {
@@ -24,7 +35,7 @@ module.exports = {
         type: Sequelize.INTEGER,
       },
       level: {
-        type: Sequelize.STRING
+        type: Sequelize.ENUM('beginner', 'intermediate', 'advanced'),
       },
       thumbnail: {
         type: Sequelize.STRING

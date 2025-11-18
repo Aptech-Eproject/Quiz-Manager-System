@@ -11,22 +11,20 @@ export default function CreateQuizRouter() {
     return (
         <>
             <Routes>
-                <Route
-                    path='/step-1'
-                    element={
-                        <CreateStepOne
-                            title={title}
-                            setTitle={setTitle}
-                        />}
+                <Route path='/step-1' element={
+                    <CreateStepOne
+                        title={title}
+                        setTitle={setTitle}
+                    />}
 
                 />
-                <Route
-                    path='/step-2'
-                    element={
-                        <CreateStepTwo
-                            category={category}
-                            setCategory={setCategory}
-                        />}
+                <Route path='/step-2' element={
+                    <CreateStepTwo
+                        title={title}
+                        setTitle={setTitle}
+                        category={category}
+                        setCategory={setCategory}
+                    />}
                 />
             </Routes>
         </>

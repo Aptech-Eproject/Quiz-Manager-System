@@ -1,9 +1,32 @@
 import { ArrowDown } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { quizAPI } from "../../../shared/services/api";
 
 import CreateStepTwoFooter from "../components/CreateStepTwoFooter";
 import CreateStepTwoHeader from "../components/CreateStepTwoHeader";
 
 export default function CreateStepTwo({ title, category, setCategory }) {
+    const navigate = useNavigate();
+    const data = {
+        title,
+        category
+    };
+
+    const handleCreateQuiz = async () => {
+        try {
+            const response = await quizAPI.create(data);
+            const quiz = response.data.data;
+
+            window.alert('✅ Created quiz successfully');
+
+            navigate(`/admin/manage/quiz/${quiz.quizId}/builder`);
+
+        } catch (error) {
+            console.error('❌ Failed to create quiz:', error);
+            window.alert('Failed to create quiz');
+        }
+    };
+
     return (
         <>
             <div className="w-screen h-screen bg-gray-100 flex flex-col">
@@ -50,7 +73,11 @@ export default function CreateStepTwo({ title, category, setCategory }) {
                 </main>
 
                 {/* Footer */}
-                <CreateStepTwoFooter title={title} category={category} />
+                <CreateStepTwoFooter
+                    title={title}
+                    category={category}
+                    handleCreateQuiz={handleCreateQuiz}
+                />
             </div>
         </>
     );

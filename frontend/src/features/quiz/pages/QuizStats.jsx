@@ -7,8 +7,12 @@ import {
 import { useEffect } from "react";
 
 import StatsGrid from "../layout/StatsGrid";
+import QuizBuilderSidebar from "../components/QuizBuilderSidebar";
+import { useParams } from "react-router-dom";
 
 export default function QuizStats() {
+    const { quizId } = useParams();
+
     const stats = [
         {
             title: 'Total Revenue',
@@ -60,11 +64,15 @@ export default function QuizStats() {
     }, []);
 
     return (
-        <div className="bg-white flex-1 shadow-[0_0_10px_rgba(0,0,0,0.15)] border border-gray-400">
-            <div className="max-w-7xl mx-auto"></div>
+        <div className="flex w-full space-y-10 space-x-10">
+            <QuizBuilderSidebar quizId={quizId} />
 
-            <div className="gap-4 px-12">
-                <StatsGrid stats={stats} />
+            <div className="bg-white flex-1 shadow-[0_0_10px_rgba(0,0,0,0.15)] border border-gray-400">
+                <div className="max-w-7xl mx-auto"></div>
+
+                <div className="gap-4 px-12">
+                    <StatsGrid stats={stats} />
+                </div>
             </div>
         </div>
     )

@@ -2,12 +2,44 @@ import {
     MoveLeft,
     Trash
 } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { quizAPI } from "../../../shared/services/api";
 
-export default function QuizBuilderHeader({ title, status, course }) {
+export default function QuizBuilderHeader({ quizId }) {
     const navigate = useNavigate();
+    const [quiz, setQuiz] = useState({});
 
-    function formatDuration(totalSeconds) {
+    useEffect(() => {
+        const handleFetchSingleQuiz = async () => {
+            try {
+                const res = await quizAPI.getById(quizId);
+                setQuiz(res.data.data);
+            } catch (err) {
+                console.log("Failed to fetch the single quiz:", err);
+            }
+        };
+
+        if (quizId) handleFetchSingleQuiz();
+    }, [quizId]);
+
+    const handleDeleteQuiz = async () => {
+        const confirmDelete = window.confirm("Are you sure you want to delete this quiz? This action cannot be undone.");
+        if (!confirmDelete) return;
+
+        try {
+            await quizAPI.delete(quizId);
+
+            alert('✅ Question deleted successfully!');
+
+            navigate("/admin/quizzes-list");
+        } catch (err) {
+            const errorMessage = err.response?.data?.message || err.message || 'Unknown';
+            alert(`Failed to delete quiz: ${errorMessage}`);
+        }
+    };
+
+    const formatDuration = (totalSeconds) => {
         if (!totalSeconds || totalSeconds <= 0) return "0s";
 
         const hrs = Math.floor(totalSeconds / 3600);
@@ -39,10 +71,10 @@ export default function QuizBuilderHeader({ title, status, course }) {
                     </p>
                 </div>
 
-                {/* Name Course */}
+                {/* Name Quiz */}
                 <div className="flex items-center justify-center space-x-2 h-14">
                     <p className="text-black text-xl font-medium">
-                        {title || 'Javascript Programming'}
+                        {quiz.title || 'Javascript Programming'}
                     </p>
                 </div>
 
@@ -50,7 +82,7 @@ export default function QuizBuilderHeader({ title, status, course }) {
                 <div className="flex items-center justify-center space-x-2 h-14">
                     <div className="bg-yellow-500 rounded-md">
                         <p className="text-white text-[14px] font-bold py-1 px-4">
-                            {status?.toUpperCase() || "DRAFT"}
+                            {quiz.status?.toUpperCase() || "DRAFT"}
                         </p>
                     </div>
                 </div>
@@ -58,7 +90,7 @@ export default function QuizBuilderHeader({ title, status, course }) {
                 {/* Minutes */}
                 <div className="flex items-center justify-center space-x-2 h-14">
                     <p className="text-black font-semibold">
-                        {formatDuration(course?.totalDuration)} of video content uploaded
+                        {formatDuration(quiz.duration)} of video content uploaded
                     </p>
                 </div>
 
@@ -75,7 +107,10 @@ export default function QuizBuilderHeader({ title, status, course }) {
 
                 {/* Trash Icon */}
                 <div className="flex items-center justify-center space-x-2 h-14">
-                    <span className="px-2 py-2 rounded-md hover:bg-gray-100 cursor-pointer transition">
+                    <span
+                        onClick={handleDeleteQuiz}
+                        className="px-2 py-2 rounded-md hover:bg-gray-100 cursor-pointer transition"
+                    >
                         <Trash
                             className="text-black cursor-pointer hover:opacity-90 transition-al w-6 h-6"
                         />
