@@ -24,7 +24,7 @@ export default function QuizzesList() {
 
     const [showFilters, setShowFilters] = useState(false);
     const [viewMode, setViewMode] = useState('grid');
-    const [loading, setLoading] = useState(false);
+    // const [loading, setLoading] = useState(false);
 
     const [selectedCategory, setSelectedCategory] = useState('All');
     const [selectedDifficulty, setSelectedDifficulty] = useState('All');
@@ -169,7 +169,7 @@ export default function QuizzesList() {
     useEffect(() => {
         const fetchQuizzes = async () => {
             try {
-                setLoading(true);
+                // setLoading(true);
 
                 const quizzes = await quizAPI.getAll();
                 console.log(`Quizzes: `, quizzes.data.data);
@@ -179,7 +179,7 @@ export default function QuizzesList() {
             } catch (err) {
                 console.log("Failed to fetch all quizzes:", err);
             } finally {
-                setLoading(false);
+                // setLoading(false);
             }
         };
 
