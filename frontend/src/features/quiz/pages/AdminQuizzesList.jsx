@@ -26,7 +26,7 @@ export default function QuizzesList() {
     const [searchText, setSearchText] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('All');
     const [selectedDifficulty, setSelectedDifficulty] = useState('All');
-    const [sortBy, setSortBy] = useState('popular');
+    // const [sortBy, setSortBy] = useState('popular');
 
     const [loading, setLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
@@ -105,7 +105,7 @@ export default function QuizzesList() {
         // }
 
         setFilteredQuizzes(result);
-    }, [allQuizzes, searchText, selectedCategory, selectedDifficulty, sortBy]);
+    }, [allQuizzes, searchText, selectedCategory, selectedDifficulty]);
 
     useEffect(() => {
         fetchQuizzes(currentPage);

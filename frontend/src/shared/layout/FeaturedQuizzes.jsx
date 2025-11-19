@@ -26,6 +26,7 @@ export default function FeaturedQuizzes() {
         fetchQuizzes();
     }, []);
 
+    if (loading) console.log('Loading....');
 
     return (
         <section className="bg-white">
