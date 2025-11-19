@@ -7,17 +7,23 @@ import {
 import { Link } from "react-router-dom";
 
 export default function QuizCardList({ quiz }) {
-    const thumbnailUrl = `${import.meta.env.VITE_API_URL}/${quiz.thumbnail}`;
-    console.log(thumbnailUrl);
+    let thumbnailUrl = quiz.thumbnail;
+
+    if (!quiz.thumbnail.startsWith('http')) {
+        thumbnailUrl = `${import.meta.env.VITE_API_URL}/${quiz.thumbnail}`;
+    }
 
     return (
         <div
             key={quiz.id}
             className="bg-white rounded-xl shadow-md hover:shadow-lg transition overflow-hidden"
         >
-            <Link to='/admin/manage/quiz/1/builder' className="flex flex-col sm:flex-row">
+            <Link
+                to={`/admin/manage/quiz/${quiz.quizId}/builder`}
+                className="flex flex-col sm:flex-row"
+            >
                 {/* Thumbnail Quiz */}
-                <div className="relative w-full sm:w-70 h-32 sm:h-auto shrink-0 overflow-hidden">
+                <div className="relative w-full sm:w-70 md:w-75 max-h-60 sm:h-auto shrink-0 overflow-hidden">
                     <img
                         src={thumbnailUrl}
                         alt={quiz.title}
@@ -51,15 +57,7 @@ export default function QuizCardList({ quiz }) {
                         </div>
                         <div className="flex items-center gap-1">
                             <Clock className="w-4 h-4" />
-                            {quiz.duration}
-                        </div>
-                        <div className="flex items-center gap-1">
-                            <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                            {quiz.rating}
-                        </div>
-                        <div className="flex items-center gap-1">
-                            <Users className="w-4 h-4" />
-                            {quiz.participants}
+                            {quiz.duration} minutes
                         </div>
                     </div>
 

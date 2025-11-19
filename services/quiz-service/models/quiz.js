@@ -45,7 +45,7 @@ module.exports = (sequelize, DataTypes) => {
     thumbnail: DataTypes.STRING,
     pass_score: DataTypes.INTEGER,
     status: {
-      type: DataTypes.ENUM('draft', 'public', 'cancel'),
+      type: DataTypes.ENUM('draft', 'published', 'cancelled'),
       defaultValue: 'draft'
     }
   }, {

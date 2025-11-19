@@ -14,8 +14,8 @@ const app = express();
 app.use(cors());
 app.use(compression());
 app.use(morgan('dev'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 const uploadsPath = path.join(__dirname, 'src/module/quiz/uploads');
 app.use('/uploads', express.static(uploadsPath));

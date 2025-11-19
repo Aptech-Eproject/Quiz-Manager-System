@@ -15,17 +15,18 @@ import {
     Loader2
 } from 'lucide-react';
 import { runConfetti } from '../../../shared/utils/cannonEffect';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { quizAPI } from '../../../shared/services/api';
 import { toast } from 'react-toastify';
 
-const QuizPlay = () => {
+const QuizPreview = () => {
     const [quizData, setQuizData] = useState({});
     const [currentQuestion, setCurrentQuestion] = useState(0);
     const [selectedAnswer, setSelectedAnswer] = useState(null);
     const [answers, setAnswers] = useState({});
     const [showResults, setShowResults] = useState(false);
     const [loading, setLoading] = useState(true);
+    const navigate = useNavigate();
 
     const { quizId } = useParams();
 
@@ -271,10 +272,13 @@ const QuizPlay = () => {
 
                     {/* Action Buttons */}
                     <div className="flex flex-col sm:flex-row gap-4 mt-8 justify-center">
-                        <Link to='/' className="flex items-center justify-center gap-2 px-6 py-3 bg-white border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition font-medium cursor-pointer">
+                        <button
+                            onClick={() => navigate(-1)}
+                            className="flex items-center justify-center gap-2 px-6 py-3 bg-white border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition font-medium cursor-pointer"
+                        >
                             <Home className="w-5 h-5" />
-                            Back to Home
-                        </Link>
+                            Back to Builder
+                        </button>
                         <button
                             onClick={handlePlayAgain}
                             className="flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:shadow-lg transition font-medium cursor-pointer"
@@ -402,4 +406,4 @@ const QuizPlay = () => {
     );
 };
 
-export default QuizPlay;
+export default QuizPreview;

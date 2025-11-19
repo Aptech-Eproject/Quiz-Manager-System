@@ -5,7 +5,15 @@ import {
 import { Link } from "react-router-dom";
 
 export default function AdminQuizCardGrid({ quiz }) {
-    const thumbnailUrl = `${import.meta.env.VITE_API_URL}/${quiz.thumbnail}`;
+    let thumbnailUrl = quiz.thumbnail;
+
+    if (!quiz.thumbnail.startsWith('http')) {
+        thumbnailUrl = `${import.meta.env.VITE_API_URL}/${quiz.thumbnail}`;
+    }
+
+    const capitalizeFirstLetter = (string) => {
+        return string.charAt(0).toUpperCase() + string.slice(1);
+    }
 
     return (
         <div className="relative bg-white rounded-xl shadow-md hover:shadow-xl transition overflow-hidden group cursor-pointer">
@@ -20,7 +28,7 @@ export default function AdminQuizCardGrid({ quiz }) {
 
                 {/* Annotation Quiz */}
                 <div className="absolute top-4 right-4 bg-white px-3 py-1 rounded-full text-sm font-medium">
-                    {quiz.level}
+                    {quiz.level ? capitalizeFirstLetter(quiz.level) : 'N/A'}
                 </div>
 
                 {/* Status Quiz */}
@@ -29,7 +37,8 @@ export default function AdminQuizCardGrid({ quiz }) {
                     : `bg-green-500`
                     }`}>
                     <span className={`font-bold`}>
-                        {quiz.status.toUpperCase()}
+                        {quiz.status ? capitalizeFirstLetter(quiz.status) : 'N/A'}
+
                     </span>
                 </div>
             </div>
@@ -59,7 +68,7 @@ export default function AdminQuizCardGrid({ quiz }) {
                     </div>
                     <div className="flex items-center gap-1 flex-1">
                         <Clock className="w-4 h-4" />
-                        {quiz.duration}
+                        {quiz.duration} minutes
                     </div>
                 </div>
             </div>

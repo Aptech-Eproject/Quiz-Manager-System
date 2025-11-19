@@ -12,7 +12,7 @@ export default function CreateStepOne({ title, setTitle }) {
                 <div className="border-b-4 border-blue-800 w-1/2 transition" />
 
                 {/* Main Content */}
-                <main className="max-w-7xl mx-auto w-full p-20 flex-1">
+                <main className="max-w-7xl mx-auto w-full p-20 flex-1 flex items-center justify-center">
                     <div className="flex flex-col items-center justify-start h-full space-y-15">
                         <div className="flex flex-col space-y-5 justify-center items-center">
                             <p className="font-extrabold text-3xl">

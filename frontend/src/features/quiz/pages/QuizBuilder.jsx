@@ -12,6 +12,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { questionAPI, quizAPI } from '../../../shared/services/api';
 import QuizBuilderSidebar from '../components/QuizBuilderSidebar';
+import { toast } from 'react-toastify';
 
 const QuizBuilder = () => {
     const { quizId } = useParams();
@@ -46,16 +47,21 @@ const QuizBuilder = () => {
     const [thumbnailFile, setThumbnailFile] = useState(null);
 
     useEffect(() => {
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    }, []);
+
+    useEffect(() => {
         const handleFetchQuizData = async () => {
             try {
                 setLoading(true);
                 setError(null);
 
-                // Fetch quiz details
                 const { data: quizResponse } = await quizAPI.getById(quizId);
                 const quiz = quizResponse.data;
 
-                // Fetch all questions with options
                 const { data: questionsResponse } = await questionAPI.getAll(quizId);
                 const questions = questionsResponse.data || [];
 
@@ -64,18 +70,23 @@ const QuizBuilder = () => {
                     category: quiz.category || '',
                     description: quiz.description || '',
                     duration: quiz.duration || '',
-                    level: quiz.level || 'Beginner',
+                    level: quiz.level || '',
                     thumbnail: quiz.thumbnail || '',
                     pass_score: quiz.pass_score || 70,
                     status: quiz.status || 'draft',
                     questions: questions
                 });
 
-                console.log('✅ Quiz data loaded:', {
-                    quizId,
-                    title: quiz.title,
-                    questionsCount: questions.length
-                });
+                const IMAGE_BASE_URL = 'http://localhost:8000/';
+                if (quiz.thumbnail) {
+                    let imageUrl = quiz.thumbnail;
+
+                    if (!quiz.thumbnail.startsWith('http')) {
+                        imageUrl = `${IMAGE_BASE_URL}${quiz.thumbnail}`;
+                    }
+
+                    setThumbnailPreview(imageUrl);
+                }
 
             } catch (err) {
                 console.error("❌ Failed to fetch quiz data:", err);
@@ -90,6 +101,28 @@ const QuizBuilder = () => {
         }
     }, [quizId]);
 
+
+    const validateQuizData = () => {
+        const errors = [];
+
+        if (!quizData.title.trim()) errors.push('Quiz title is required.');
+        if (!quizData.category.trim()) errors.push('Category is required.');
+
+        if (!quizData.description.trim()) errors.push('Description is required.');
+        else if (quizData.description.trim().length > 500) errors.push('Description must not exceed 500 characters');
+
+        if (!quizData.duration || quizData.duration <= 0) errors.push('Duration is required and must be greater than 0');
+        else if (quizData.duration > 180) errors.push('Duration must not exceed 180 minutes (3 hours)');
+
+        if (!quizData.level.trim()) errors.push('Difficulty level is required.');
+
+        if (!quizData.pass_score || quizData.pass_score < 40) errors.push('Pass score must be at least 40%');
+
+        if (!quizData.questions || quizData.questions.length === 0) errors.push('At least 1 question is required');
+
+        return errors;
+    }
+
     const categories = [
         'Mathematics',
         'Science',
@@ -102,8 +135,6 @@ const QuizBuilder = () => {
         'Business',
         'Healthy'
     ];
-
-    console.log(thumbnailFile);
 
     const levels = ['Beginner', 'Intermediate', 'Advanced'];
 
@@ -168,17 +199,17 @@ const QuizBuilder = () => {
     const handleSaveQuestion = async () => {
         // Validation
         if (!currentQuestion.questionText.trim()) {
-            alert('Please enter question text');
+            toast.info('Please enter question text');
             return;
         }
 
         if (!currentQuestion.options.some(opt => opt.isTrueOption)) {
-            alert('Please select at least one correct answer');
+            toast.info('Please select at least one correct answer');
             return;
         }
 
         if (!currentQuestion.options.every(opt => opt.optionText.trim())) {
-            alert('Please fill in all option texts');
+            toast.info('Please fill in all option texts');
             return;
         }
 
@@ -210,14 +241,12 @@ const QuizBuilder = () => {
                     )
                 }));
 
-                alert('Question updated successfully!');
-
             } else {
                 // CREATE new question
                 const { data } = await questionAPI.create(quizId, questionData);
                 const newQuestion = data.data;
 
-                // Add to local state
+                // ADD to local state
                 setQuizData(prev => ({
                     ...prev,
                     questions: [
@@ -225,8 +254,6 @@ const QuizBuilder = () => {
                         newQuestion
                     ]
                 }));
-
-                alert('Question created successfully!');
             }
 
             // Reset form
@@ -252,7 +279,7 @@ const QuizBuilder = () => {
 
         } catch (err) {
             console.error('❌ Failed to save question:', err);
-            alert(`Failed to save question: ${err.response?.data?.message || err.message}`);
+            toast.error(`Failed to save question: ${err.response?.data?.message || err.message}`);
         } finally {
             // setSaving(false);
         }
@@ -291,11 +318,9 @@ const QuizBuilder = () => {
                 questions: prev.questions.filter(q => q.questionId !== questionId)
             }));
 
-            alert('Question deleted successfully!');
-
         } catch (err) {
             const errorMessage = err.response?.data?.message || err.message || 'Unknown error';
-            alert(`Failed to delete question: ${errorMessage}`);
+            toast.error(`Failed to delete question: ${errorMessage}`);
         }
     };
 
@@ -327,13 +352,13 @@ const QuizBuilder = () => {
         if (file) {
             // Validate file type
             if (!file.type.startsWith('image/')) {
-                alert('Please select an image file (PNG, JPG)');
+                toast.info('Please select an image file (PNG, JPG)');
                 return;
             }
 
             // Validate file size (5MB)
             if (file.size > 5 * 1024 * 1024) {
-                alert('File size must be less than 5MB');
+                toast.info('File size must be less than 5MB');
                 return;
             }
 
@@ -344,7 +369,7 @@ const QuizBuilder = () => {
             const reader = new FileReader();
             reader.onloadend = () => {
                 setThumbnailPreview(reader.result);
-                handleQuizChange('thumbnail', reader.result); // Save to quizData
+                handleQuizChange('thumbnail', reader.result);
             };
             reader.readAsDataURL(file);
         }
@@ -362,7 +387,7 @@ const QuizBuilder = () => {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-white flex items-center justify-center">
+            <div className="min-h-screen w-full flex items-center justify-center">
                 <div className="text-center">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
                     <p className="text-gray-600">
@@ -390,25 +415,15 @@ const QuizBuilder = () => {
         );
     }
 
-    const handleSubmitQuiz = async () => {
-        if (quizData.status === 'draft') {
-            // Publish quiz
-            await quizAPI.update(quizId);
-
-            // ...
-
-            alert('Question deleted successfully!');
-
-        } else {
-            // Update quiz
-
-        }
-    }
-
     return (
         <div className="flex w-full space-y-10 space-x-10">
             {/* Sidebar */}
-            <QuizBuilderSidebar handleSubmitQuiz={handleSubmitQuiz} quizId={quizId} />
+            <QuizBuilderSidebar
+                thumbnailFile={thumbnailFile}
+                quizData={quizData}
+                quizId={quizId}
+                validateQuizData={validateQuizData}
+            />
 
             {/* Main Content */}
             <div className="min-h-screen bg-white flex-1 shadow-[0_0_10px_rgba(0,0,0,0.15)]">
@@ -459,7 +474,6 @@ const QuizBuilder = () => {
                                         />
 
                                         {/* Upload area or Preview */}
-                                        {/* Upload area or Preview */}
                                         {thumbnailPreview ? (
                                             // Preview Image
                                             <div className="relative border-2 border-gray-300 rounded-lg overflow-hidden">
@@ -500,6 +514,10 @@ const QuizBuilder = () => {
                                                 </p>
                                             </div>
                                         )}
+
+                                        <p className="text-sm text-gray-600 mt-2 italic">
+                                            💡 Don't worry if you can't find an image - we'll set a default one for you, and you can change it later!
+                                        </p>
                                     </div>
 
                                     {/* Quiz Title */}
@@ -513,8 +531,12 @@ const QuizBuilder = () => {
                                             value={quizData.title}
                                             onChange={(e) => handleQuizChange('title', e.target.value)}
                                             placeholder="Enter quiz title..."
-                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                            className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${!quizData.title.trim() ? 'border-red-300' : 'border-gray-300'
+                                                }`}
                                         />
+                                        {!quizData.title.trim() && (
+                                            <p className="text-red-500 text-sm mt-1">Title is required</p>
+                                        )}
                                     </div>
 
                                     {/* Category */}
@@ -525,7 +547,8 @@ const QuizBuilder = () => {
                                         <select
                                             value={quizData.category}
                                             onChange={(e) => handleQuizChange('category', e.target.value)}
-                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                            className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${!quizData.category ? 'border-red-300' : 'border-gray-300'
+                                                }`}
                                         >
                                             <option value="">
                                                 Select a category
@@ -534,6 +557,11 @@ const QuizBuilder = () => {
                                                 <option key={cat} value={cat}>{cat}</option>
                                             ))}
                                         </select>
+                                        {!quizData.category && (
+                                            <p className="text-red-500 text-sm mt-1">
+                                                Category is required
+                                            </p>
+                                        )}
                                     </div>
 
                                     {/* Description */}
@@ -543,65 +571,125 @@ const QuizBuilder = () => {
                                         </label>
                                         <textarea
                                             value={quizData.description}
-                                            onChange={(e) => handleQuizChange('description', e.target.value)}
+                                            onChange={(e) => {
+                                                if (e.target.value.length <= 500) {
+                                                    handleQuizChange('description', e.target.value)
+                                                }
+                                            }}
                                             placeholder="Describe what this quiz covers..."
                                             rows={4}
-                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                                            maxLength={500}
+                                            className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none ${!quizData.description.trim() || quizData.description.length > 500
+                                                ? 'border-red-300'
+                                                : 'border-gray-300'
+                                                }`}
                                         />
+                                        <div className="flex justify-between mt-1">
+                                            <div>
+                                                {!quizData.description.trim() && (
+                                                    <p className="text-red-500 text-sm">Description is required</p>
+                                                )}
+                                                {quizData.description.length > 500 && (
+                                                    <p className="text-red-500 text-sm">Description exceeds 500 characters</p>
+                                                )}
+                                            </div>
+                                            <p className={`text-sm ${quizData.description.length > 500 ? 'text-red-500' : 'text-gray-500'
+                                                }`}>
+                                                {quizData.description.length}/500
+                                            </p>
+                                        </div>
                                     </div>
 
                                     {/* Duration & Level */}
                                     <div className="grid grid-cols-2 gap-4">
                                         <div>
                                             <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                                Duration (minutes)
+                                                Duration (minutes) <span className="text-red-500">*</span>
                                             </label>
                                             <div className="relative">
                                                 <Clock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                                                 <input
                                                     type="number"
                                                     value={quizData.duration}
-                                                    onChange={(e) => handleQuizChange('duration', e.target.value)}
+                                                    onChange={(e) => {
+                                                        const value = parseInt(e.target.value) || 0;
+                                                        if (value >= 0 && value <= 180) {
+                                                            handleQuizChange('duration', value);
+                                                        }
+                                                    }}
+                                                    onKeyDown={(e) => {
+                                                        if (e.key === '-' || e.key === 'e' || e.key === '+') {
+                                                            e.preventDefault();
+                                                        }
+                                                    }}
+                                                    min="1"
+                                                    max="180"
                                                     placeholder="30"
-                                                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                    className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${!quizData.duration || quizData.duration <= 0 || quizData.duration > 180
+                                                        ? 'border-red-300'
+                                                        : 'border-gray-300'
+                                                        }`}
                                                 />
                                             </div>
+                                            {(!quizData.duration || quizData.duration <= 0) && (
+                                                <p className="text-red-500 text-sm mt-1">Duration is required and must be greater than 0</p>
+                                            )}
+                                            {quizData.duration > 180 && (
+                                                <p className="text-red-500 text-sm mt-1">Duration must not exceed 180 minutes (3 hours)</p>
+                                            )}
                                         </div>
 
                                         <div>
                                             <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                                Difficulty Level
+                                                Difficulty Level <span className="text-red-500">*</span>
                                             </label>
                                             <select
                                                 value={quizData.level}
                                                 onChange={(e) => handleQuizChange('level', e.target.value)}
-                                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${!quizData.level ? 'border-red-300' : 'border-gray-300'
+                                                    }`}
                                             >
+                                                <option value="">Select difficulty level</option>
+
                                                 {levels.map(level => (
-                                                    <option key={level} value={level}>{level}</option>
+                                                    <option key={level} value={level}>
+                                                        {level}
+                                                    </option>
                                                 ))}
                                             </select>
+                                            {!quizData.level && (
+                                                <p className="text-red-500 text-sm mt-1">
+                                                    Difficulty level is required
+                                                </p>
+                                            )}
                                         </div>
                                     </div>
 
                                     {/* Pass Score */}
                                     <div>
                                         <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                            Pass Score (%)
+                                            Pass Score (%) <span className="text-red-500">*</span>
                                         </label>
                                         <div className="flex items-center gap-4">
                                             <input
                                                 type="range"
-                                                min="0"
+                                                min="40"
                                                 max="100"
                                                 value={quizData.pass_score}
                                                 onChange={(e) => handleQuizChange('pass_score', e.target.value)}
                                                 className="flex-1"
                                             />
-                                            <span className="text-2xl font-bold text-black min-w-[60px]">
+                                            <span className={`text-2xl font-bold min-w-[60px] ${quizData.pass_score < 40 ? 'text-red-500' : 'text-black'
+                                                }`}>
                                                 {quizData.pass_score}%
                                             </span>
                                         </div>
+                                        {quizData.pass_score < 40 && (
+                                            <p className="text-red-500 text-sm mt-1">Pass score must be at least 40%</p>
+                                        )}
+                                        <p className="text-gray-500 text-sm mt-1">
+                                            Minimum pass score: 40%
+                                        </p>
                                     </div>
                                 </div>
                             </div>
@@ -623,7 +711,7 @@ const QuizBuilder = () => {
                                     {!isAddingQuestion && (
                                         <button
                                             onClick={() => setIsAddingQuestion(true)}
-                                            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:shadow-lg transition"
+                                            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:shadow-lg transition cursor-pointer"
                                         >
                                             <Plus className="w-5 h-5" />
                                             Add Question
@@ -747,7 +835,7 @@ const QuizBuilder = () => {
                                                 </button>
                                                 <button
                                                     onClick={handleSaveQuestion}
-                                                    className="px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:shadow-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
+                                                    className="px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:shadow-lg transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                                                     disabled={
                                                         !currentQuestion.questionText.trim() ||
                                                         !currentQuestion.options.some(opt => opt.isTrueOption) ||
@@ -780,13 +868,13 @@ const QuizBuilder = () => {
                                                             <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition">
                                                                 <button
                                                                     onClick={() => handleEditQuestion(question)}
-                                                                    className="p-1.5 hover:bg-blue-100 rounded-lg transition"
+                                                                    className="p-1.5 hover:bg-blue-100 rounded-lg transition cursor-pointer"
                                                                 >
                                                                     <Pencil className="w-4 h-4 text-blue-600" />
                                                                 </button>
                                                                 <button
                                                                     onClick={() => handleDeleteQuestion(question.questionId)}
-                                                                    className="p-1.5 hover:bg-red-100 rounded-lg transition"
+                                                                    className="p-1.5 hover:bg-red-100 rounded-lg transition cursor-pointer"
                                                                 >
                                                                     <Trash2 className="w-4 h-4 text-red-600" />
                                                                 </button>

@@ -21,9 +21,9 @@ function fire(particleRatio, opts) {
 
 export const runConfetti = () => {
     fire(0.25, { spread: 26, startVelocity: 55 });
-
-    setTimeout(() => fire(0.2, { spread: 60 }), 200);
-    setTimeout(() => fire(0.35, { spread: 100, decay: 0.91, scalar: 0.8 }), 400);
-    setTimeout(() => fire(0.1, { spread: 120, startVelocity: 25, decay: 0.92, scalar: 1.2 }), 600);
-    setTimeout(() => fire(0.1, { spread: 120, startVelocity: 45 }), 800);
+    fire(0.2, { spread: 60 });
+    fire(0.35, { spread: 100, decay: 0.91, scalar: 0.8 });
+    fire(0.1, { spread: 120, startVelocity: 25, decay: 0.92, scalar: 1.2 });
+    fire(0.1, { spread: 120, startVelocity: 45 });
 };
+

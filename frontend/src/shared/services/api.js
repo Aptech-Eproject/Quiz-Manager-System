@@ -7,11 +7,22 @@ export const authAPI = {
 };
 
 export const quizAPI = {
-  getAll: () => axios.get('/api/quiz/showAll'),
-  getById: (id) => axios.get(`/api/quiz/get/${id}`),
+  getAll: (page = 1) => axios.get(`/api/quiz/showAll?page=${page}`),
+  getAllAdmin: (page = 1, isAdmin = false) => axios.get(`/api/quiz/showAll?page=${page}&isAdmin=${isAdmin}`),
+  showHome: () => axios.get(`/api/quiz/showHome/`),
+  getById: (quizId) => axios.get(`/api/quiz/get/${quizId}`),
   create: (data) => axios.post('/api/quiz/create', data),
-  update: (id, data) => axios.put(`/api/quiz/${id}`, data),
-  delete: (id) => axios.delete(`/api/quiz/${id}`),
+  update: (quizId, data) => axios.put(`/api/quiz/update/${quizId}`, data, {
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  }),
+  delete: (id) => axios.delete(`/api/quiz/delete/${id}`),
+  publish: (id, data) => axios.put(`/api/quiz/publish/${id}`, data, {
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  }),
 };
 
 export const questionAPI = {
