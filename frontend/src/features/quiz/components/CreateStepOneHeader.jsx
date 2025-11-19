@@ -9,7 +9,7 @@ export default function CreateStepOneHeader() {
     }
 
     return (
-        <header className="bg-white shadow-sm max-w-7xl px-4 sm:px-6 lg:px-8">
+        <header className="bg-white shadow-sm min-w-full px-4 sm:px-6 lg:px-8">
             <div className="flex flex-col">
                 <div className="flex justify-between items-center h-20 gap-6">
                     {/* Logo */}

@@ -34,8 +34,12 @@ const upload = multer({ storage });
  */
 const getAllQuizzes = async (req, res) => {
   try {
-    const quizzes = await quizService.getAllQuizzes();
-    response.success(res, `✅ Get all quizzes successfully`, quizzes);
+    const page = parseInt(req.query.page || 1);
+    const isAdmin = req.query.isAdmin === 'true';
+
+    const result = await quizService.getAllQuizzes(page, isAdmin);
+    response.success(res, `✅ Get all quizzes successfully (Page ${page})`, result);
+
   } catch (err) {
     response.error(res, `Failed to getting all quizzes`);
     console.log(`Error Detail: ${err.message}`);
@@ -53,6 +57,17 @@ const getQuizById = async (req, res) => {
   }
 };
 
+const showHome = async (req, res) => {
+  try {
+    const quizzes = await quizService.showHome();
+    response.success(res, `✅ Get all quizzes successfully`, quizzes);
+
+  } catch (err) {
+    response.error(res, `Failed to getting all quizzes`);
+    console.log(`Error Detail: ${err.message}`);
+  }
+}
+
 const createQuiz = async (req, res) => {
   try {
     const quizData = { ...req.body };
@@ -68,8 +83,6 @@ const createQuiz = async (req, res) => {
       quizData.thumbnail = `uploads/${fileName}`;
     }
 
-    console.log(`Thumbnail saved as: ${quizData.thumbnail}`);
-
     const newQuiz = await quizService.createQuiz(quizData);
     response.success(res, '✅ Created new quiz successfully', newQuiz, 201);
 
@@ -81,21 +94,43 @@ const createQuiz = async (req, res) => {
 
 const updateQuiz = async (req, res) => {
   try {
-    console.log('req.params:', req.params);
-    console.log('req.body:', req.body);
-
     const quizId = req.params.quizId;
-    console.log('quizId extracted:', quizId);
+    const quizData = { ...req.body };
 
     if (req.file) {
-      req.body.thumbnail = `uploads/${req.file.filename}`;
+      quizData.thumbnail = `uploads/${req.file.filename}`;
     }
 
-    const updatedQuiz = await quizService.updateQuiz(quizId, req.body);
+    const updatedQuiz = await quizService.updateQuiz(quizId, quizData);
     response.success(res, `✅ Updated quiz successfully`, updatedQuiz);
 
   } catch (err) {
     response.error(res, `Failed to updating quiz`);
+    console.log(`Error Detail: ${err.message}`);
+  }
+};
+
+const publishQuiz = async (req, res) => {
+  try {
+    const quizId = req.params.quizId;
+    const quizData = { ...req.body };
+
+    if (req.file) {
+      quizData.thumbnail = `uploads/${req.file.filename}`;
+    } else {
+      const defaultImagePath = path.join(__dirname, '..', 'images', 'quiz-banner-default.jpg');
+      const fileName = `thumbnail-${Date.now()}.jpg`;
+      const filePath = path.join(uploadDir, fileName);
+
+      fs.copyFileSync(defaultImagePath, filePath);
+      quizData.thumbnail = `uploads/${fileName}`;
+    }
+
+    const publishedQuiz = await quizService.publishQuiz(quizId, quizData);
+    response.success(res, `✅ Published quiz successfully`, publishedQuiz);
+
+  } catch (err) {
+    response.error(res, 'Failed to publish quiz');
     console.log(`Error Detail: ${err.message}`);
   }
 };
@@ -111,11 +146,25 @@ const deleteQuiz = async (req, res) => {
   }
 };
 
+const statisticsByCategory = async (req, res) => {
+  try {
+    const data = await quizService.statisticsByCategory();
+    response.success(res, `✅ Statistic quiz by category successfully`, data);
+
+  } catch (err) {
+    response.error(res, `Failed to statistic quiz by category`);
+    console.log(`Error Detail: ${err.message}`);
+  }
+};
+
 module.exports = {
   upload,
   getAllQuizzes,
+  showHome,
   getQuizById,
   createQuiz,
   updateQuiz,
-  deleteQuiz
+  publishQuiz,
+  deleteQuiz,
+  statisticsByCategory
 };

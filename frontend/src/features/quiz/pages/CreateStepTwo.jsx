@@ -1,6 +1,7 @@
 import { ArrowDown } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { quizAPI } from "../../../shared/services/api";
+import { toast } from 'react-toastify';
 
 import CreateStepTwoFooter from "../components/CreateStepTwoFooter";
 import CreateStepTwoHeader from "../components/CreateStepTwoHeader";
@@ -17,7 +18,7 @@ export default function CreateStepTwo({ title, category, setCategory }) {
             const response = await quizAPI.create(data);
             const quiz = response.data.data;
 
-            window.alert('✅ Created quiz successfully');
+            toast.success('Created quiz successfully');
 
             navigate(`/admin/manage/quiz/${quiz.quizId}/builder`);
 
@@ -37,11 +38,15 @@ export default function CreateStepTwo({ title, category, setCategory }) {
                 <div className="border-b-4 border-blue-800 w-full transition" />
 
                 {/* Main Content */}
-                <main className="max-w-7xl mx-auto w-full p-20 flex-1">
-                    <div className="flex flex-col items-center justify-start h-full space-y-15">
+                <main className="max-w-7xl mx-auto w-full p-20 flex-1 flex items-center justify-center">
+                    <div className="flex flex-col items-center justify-center h-full space-y-15">
                         <div className="flex flex-col space-y-5 justify-center items-center">
-                            <p className="font-extrabold text-3xl">What category best fits the knowledge you'll share?</p>
-                            <p className="font-semibold text-gray-800">If you're not sure about the right category, you can change it later.</p>
+                            <p className="font-extrabold text-3xl">
+                                What category best fits the knowledge you'll share?
+                            </p>
+                            <p className="font-semibold text-gray-800">
+                                If you're not sure about the right category, you can change it later.
+                            </p>
                         </div>
 
                         <div className="w-full flex items-center justify-center">
@@ -53,13 +58,16 @@ export default function CreateStepTwo({ title, category, setCategory }) {
                                     className="appearance-none w-150 px-3 pr-10 py-2 border border-gray-400 rounded-md text-sm text-gray-600 font-semibold focus:outline-none focus:ring-purple-800 cursor-pointer"
                                 >
                                     <option value="">Choose a category</option>
-                                    <option value="Programming">Programming</option>
+                                    <option value="Mathematics">Mathematics</option>
                                     <option value="Science">Science</option>
                                     <option value="History">History</option>
-                                    <option value="Mathematics">Mathematics</option>
-                                    <option value="Languages">Languages</option>
-                                    <option value="Arts">Arts</option>
-                                    <option value="Geography">Geography</option>
+                                    <option value="English">English</option>
+                                    <option value="Programming">Programming</option>
+                                    <option value="Music">Music</option>
+                                    <option value="Sport">Sport</option>
+                                    <option value="Art">Art</option>
+                                    <option value="Business">Business</option>
+                                    <option value="Healthy">Healthy</option>
                                 </select>
 
 

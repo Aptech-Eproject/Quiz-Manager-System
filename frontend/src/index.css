@@ -1,3 +1,38 @@
 @import "tailwindcss";
 @import "tailwindcss/theme" layer(theme);
 @import "tailwindcss/utilities" layer(utilities);
+
+/* SweetAlert2 Custom Styles */
+.swal-custom-popup {
+    border-radius: 12px !important;
+    padding: 20px !important;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15) !important;
+}
+
+.swal-custom-title {
+    font-size: 24px !important;
+    font-weight: 700 !important;
+    color: #111827 !important;
+    margin-bottom: 10px !important;
+}
+
+.swal-custom-button {
+    background: linear-gradient(to bottom right, #2563eb, #9333ea) !important;
+    border: none !important;
+    border-radius: 8px !important;
+    padding: 10px 30px !important;
+    font-weight: 600 !important;
+    font-size: 16px !important;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3) !important;
+    transition: all 0.3s ease !important;
+}
+
+.swal-custom-button:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 16px rgba(37, 99, 235, 0.4) !important;
+}
+
+.swal2-icon.swal2-error {
+    border-color: #ef4444 !important;
+    color: #ef4444 !important;
+}

@@ -3,8 +3,9 @@ import {
     Trash
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { quizAPI } from "../../../shared/services/api";
+import { toast } from 'react-toastify';
 
 export default function QuizBuilderHeader({ quizId }) {
     const navigate = useNavigate();
@@ -30,12 +31,12 @@ export default function QuizBuilderHeader({ quizId }) {
         try {
             await quizAPI.delete(quizId);
 
-            alert('✅ Question deleted successfully!');
-
+            toast.success('Question deleted successfully!');
             navigate("/admin/quizzes-list");
+
         } catch (err) {
             const errorMessage = err.response?.data?.message || err.message || 'Unknown';
-            alert(`Failed to delete quiz: ${errorMessage}`);
+            toast.error(`Failed to delete quiz: ${errorMessage}`);
         }
     };
 
@@ -80,7 +81,7 @@ export default function QuizBuilderHeader({ quizId }) {
 
                 {/* DRAFT Box */}
                 <div className="flex items-center justify-center space-x-2 h-14">
-                    <div className="bg-yellow-500 rounded-md">
+                    <div className={`rounded-lg ${quiz.status === 'draft' ? `bg-yellow-500` : `bg-green-500`}`}>
                         <p className="text-white text-[14px] font-bold py-1 px-4">
                             {quiz.status?.toUpperCase() || "DRAFT"}
                         </p>
@@ -96,12 +97,15 @@ export default function QuizBuilderHeader({ quizId }) {
 
                 {/* Preview button */}
                 <div className="flex items-center justify-end flex-1 space-x-2 h-14">
-                    <button className="w-30 relative px-5 py-2 text-sm font-bold rounded-md border border-gray-400 text-gray-600 overflow-hidden group cursor-pointer">
+                    <Link
+                        to={`/quiz/${quiz.quizId}/preview`}
+                        className="w-30 relative px-5 py-2 text-sm font-bold rounded-md border border-gray-400 text-gray-600 overflow-hidden group cursor-pointer text-center"
+                    >
                         <span className="absolute inset-0 rounded-md bg-white opacity-0 group-hover:opacity-100 group-hover:bg-gradient-to-br from-blue-500 to-purple-500 transition-opacity duration-500 pointer-events-none"></span>
                         <span className="relative group-hover:text-white transition duration-500">
                             Preview
                         </span>
-                    </button>
+                    </Link>
                 </div>
 
 

@@ -5,11 +5,11 @@ import {
     Hand,
     List,
     Plus,
-    Search
+    Search,
+    Package
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-// import axios from '../../../shared/utils/axios';
 
 import Pagination from "../../../shared/components/Pagination";
 import AdminQuizCardList from "../components/AdminQuizCardList";
@@ -18,142 +18,25 @@ import { quizAPI } from "../../../shared/services/api";
 import AdminHeader from "../../../shared/components/AdminHeader";
 
 export default function QuizzesList() {
-    const user = 'name';
+    const user = 'Maarseille Hau';
 
-    const [quizzes, setQuizzes] = useState([]);
+    const [allQuizzes, setAllQuizzes] = useState([]);
+    const [filteredQuizzes, setFilteredQuizzes] = useState([]);
+
+    const [searchText, setSearchText] = useState('');
+    const [selectedCategory, setSelectedCategory] = useState('All');
+    const [selectedDifficulty, setSelectedDifficulty] = useState('All');
+    // const [sortBy, setSortBy] = useState('popular');
+
+    const [loading, setLoading] = useState(false);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
 
     const [showFilters, setShowFilters] = useState(false);
     const [viewMode, setViewMode] = useState('grid');
-    // const [loading, setLoading] = useState(false);
-
-    const [selectedCategory, setSelectedCategory] = useState('All');
-    const [selectedDifficulty, setSelectedDifficulty] = useState('All');
-    const [status, setStatus] = useState('popular');
-
-    // const quizzes = [
-    //     {
-    //         id: 1,
-    //         title: "JavaScript Fundamentals",
-    //         description: "Test your knowledge of JavaScript basics and ES6 features",
-    //         questions: 25,
-    //         level: "Intermediate",
-    //         participants: 1234,
-    //         rating: 4.8,
-    //         duration: "30 min",
-    //         category: "Programming",
-    //         image: "https://images.unsplash.com/photo-1627398242454-45a1465c2479?w=400&h=250&fit=crop",
-    //         trending: true,
-    //         status: 'DRAFT'
-    //     },
-    //     {
-    //         id: 2,
-    //         title: "World History",
-    //         description: "Journey through major historical events and civilizations",
-    //         questions: 40,
-    //         level: "Advanced",
-    //         participants: 892,
-    //         rating: 4.6,
-    //         duration: "45 min",
-    //         category: "History",
-    //         image: "https://images.unsplash.com/photo-1461360370896-922624d12aa1?w=400&h=250&fit=crop",
-    //         status: 'DRAFT'
-    //     },
-    //     {
-    //         id: 3,
-    //         title: "Basic Mathematics",
-    //         description: "Essential math concepts for everyday problem solving",
-    //         questions: 20,
-    //         level: "Beginner",
-    //         participants: 2156,
-    //         rating: 4.9,
-    //         duration: "20 min",
-    //         category: "Mathematics",
-    //         image: "https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=400&h=250&fit=crop",
-    //         featured: true,
-    //         status: 'DRAFT'
-    //     },
-    //     {
-    //         id: 4,
-    //         title: "Python Programming",
-    //         description: "Master Python syntax, data structures, and algorithms",
-    //         questions: 35,
-    //         level: "Intermediate",
-    //         participants: 1567,
-    //         rating: 4.7,
-    //         duration: "40 min",
-    //         category: "Programming",
-    //         image: "https://images.unsplash.com/photo-1526379095098-d400fd0bf935?w=400&h=250&fit=crop",
-    //         status: 'DRAFT'
-    //     },
-    //     {
-    //         id: 5,
-    //         title: "Biology Basics",
-    //         description: "Explore cells, genetics, and human body systems",
-    //         questions: 30,
-    //         level: "Beginner",
-    //         participants: 945,
-    //         rating: 4.5,
-    //         duration: "35 min",
-    //         category: "Science",
-    //         image: "https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?w=400&h=250&fit=crop",
-    //         status: 'DRAFT'
-    //     },
-    //     {
-    //         id: 6,
-    //         title: "English Grammar",
-    //         description: "Perfect your grammar skills with comprehensive exercises",
-    //         questions: 28,
-    //         level: "Intermediate",
-    //         participants: 1823,
-    //         rating: 4.8,
-    //         duration: "25 min",
-    //         category: "Languages",
-    //         image: "https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=400&h=250&fit=crop",
-    //         trending: true,
-    //         status: 'Public'
-    //     },
-    //     {
-    //         id: 7,
-    //         title: "World Geography",
-    //         description: "Test your knowledge of countries, capitals, and landmarks",
-    //         questions: 50,
-    //         level: "Advanced",
-    //         participants: 678,
-    //         rating: 4.4,
-    //         duration: "50 min",
-    //         category: "Geography",
-    //         image: "https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?w=400&h=250&fit=crop",
-    //         status: 'Public'
-    //     },
-    //     {
-    //         id: 8,
-    //         title: "Art History",
-    //         description: "Discover famous artworks, artists, and art movements",
-    //         questions: 22,
-    //         level: "Intermediate",
-    //         participants: 534,
-    //         rating: 4.6,
-    //         duration: "28 min",
-    //         category: "Arts",
-    //         image: "https://images.unsplash.com/photo-1460661419201-fd4cecdf8a8b?w=400&h=250&fit=crop",
-    //         status: 'Public'
-    //     },
-    //     {
-    //         id: 9,
-    //         title: "Physics Fundamentals",
-    //         description: "Understand mechanics, energy, and basic physics principles",
-    //         questions: 32,
-    //         level: "Advanced",
-    //         participants: 1089,
-    //         rating: 4.7,
-    //         duration: "42 min",
-    //         category: "Science",
-    //         image: "https://images.unsplash.com/photo-1636466497217-26a8cbeaf0aa?w=400&h=250&fit=crop",
-    //         status: 'Public'
-    //     }
-    // ];
 
     const categories = [
+        'All',
         'Mathematics',
         'Science',
         'History',
@@ -166,26 +49,6 @@ export default function QuizzesList() {
         'Healthy'
     ];
 
-    useEffect(() => {
-        const fetchQuizzes = async () => {
-            try {
-                // setLoading(true);
-
-                const quizzes = await quizAPI.getAll();
-                console.log(`Quizzes: `, quizzes.data.data);
-
-                setQuizzes(quizzes.data.data);
-
-            } catch (err) {
-                console.log("Failed to fetch all quizzes:", err);
-            } finally {
-                // setLoading(false);
-            }
-        };
-
-        fetchQuizzes();
-    }, []);
-
     const difficulties = [
         'All',
         'Beginner',
@@ -193,13 +56,74 @@ export default function QuizzesList() {
         'Advanced'
     ];
 
+    const fetchQuizzes = async (page) => {
+        try {
+            setLoading(true);
+            const quizzes = await quizAPI.getAllAdmin(page, true);
+            setAllQuizzes(quizzes.data.data.quizzes);
+            setCurrentPage(quizzes.data.data.currentPage);
+            setTotalPages(quizzes.data.data.totalPages);
+        } catch (err) {
+            console.log("Failed to fetch all quizzes:", err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        let result = [...allQuizzes];
+
+        // Search
+        if (searchText) {
+            result = result.filter(quiz =>
+                quiz.title.toLowerCase().includes(searchText.toLowerCase()) ||
+                quiz.category.toLowerCase().includes(searchText.toLowerCase()) ||
+                (quiz.description && quiz.description.toLowerCase().includes(searchText.toLowerCase()))
+            );
+        }
+
+        // Category
+        if (selectedCategory !== 'All') {
+            result = result.filter(quiz => quiz.category === selectedCategory);
+        }
+
+        // Difficulty
+        if (selectedDifficulty !== 'All') {
+            const normalizedDifficulty = selectedDifficulty.toLowerCase();
+            result = result.filter(quiz =>
+                quiz.level.toLowerCase() === normalizedDifficulty
+            );
+        }
+
+        // Sort
+        // if (sortBy === 'popular') {
+        //     result.sort((a, b) => (b.views || 0) - (a.views || 0));
+        // } else if (sortBy === 'rating') {
+        //     result.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+        // } else if (sortBy === 'newest') {
+        //     result.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        // }
+
+        setFilteredQuizzes(result);
+    }, [allQuizzes, searchText, selectedCategory, selectedDifficulty]);
+
+    useEffect(() => {
+        fetchQuizzes(currentPage);
+    }, [currentPage]);
+
+    const handlePageChange = (newPage) => {
+        if (currentPage > 0 && newPage <= totalPages) {
+            setCurrentPage(newPage);
+        }
+    }
+
     useEffect(() => {
         if (localStorage.getItem('viewMode') === 'list') {
             setViewMode('list');
         } else {
             setViewMode('grid');
         }
-    }, [viewMode]);
+    }, []);
 
     useEffect(() => {
         window.scrollTo({
@@ -207,6 +131,29 @@ export default function QuizzesList() {
             behavior: 'smooth'
         });
     }, []);
+
+    const EmptyState = () => (
+        <div className="flex flex-col items-center justify-center py-16 px-4">
+            <div className="bg-gray-100 p-6 rounded-full mb-4">
+                <Package className="w-12 h-12 text-gray-400" />
+            </div>
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">No quizzes found</h3>
+            <p className="text-gray-600 text-center mb-6">
+                {searchText || selectedCategory !== 'All' || selectedDifficulty !== 'All'
+                    ? 'Try adjusting your search or filter criteria'
+                    : 'Start by creating your first quiz'}
+            </p>
+            {!(searchText || selectedCategory !== 'All' || selectedDifficulty !== 'All') && (
+                <Link
+                    to='/admin/create-quiz/step-1'
+                    className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:shadow-lg transition"
+                >
+                    <Plus className="w-4 h-4" />
+                    Create First Quiz
+                </Link>
+            )}
+        </div>
+    );
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -239,9 +186,7 @@ export default function QuizzesList() {
                         <div className="flex items-center gap-10">
                             {/* View Mode Toggle */}
                             <div className="flex items-center gap-2">
-                                <span>
-                                    View Mode:
-                                </span>
+                                <span>View Mode:</span>
                                 <div className="flex items-center bg-gray-100 rounded-lg p-1">
                                     <button
                                         onClick={() => {
@@ -287,6 +232,8 @@ export default function QuizzesList() {
                         <input
                             type="text"
                             placeholder="Search quizzes by title, topic, or keyword..."
+                            value={searchText}
+                            onChange={(e) => setSearchText(e.target.value)}
                             className="w-full pl-12 pr-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
                     </div>
@@ -302,7 +249,7 @@ export default function QuizzesList() {
                             Filters
                         </button>
 
-                        {/* Desktop Filers */}
+                        {/* Desktop Filters */}
                         <div className="hidden md:flex flex-wrap items-center gap-4 flex-1">
                             {/* Category Filters */}
                             <div className="flex items-center gap-2">
@@ -311,13 +258,12 @@ export default function QuizzesList() {
                                 </span>
                                 <div className="relative">
                                     <select
+                                        value={selectedCategory}
+                                        onChange={(e) => setSelectedCategory(e.target.value)}
                                         className="appearance-none bg-gray-50 border border-gray-200 rounded-lg px-4 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
                                     >
                                         {categories.map((cat) => (
-                                            <option
-                                                key={cat}
-                                                value={cat}
-                                            >
+                                            <option key={cat} value={cat}>
                                                 {cat}
                                             </option>
                                         ))}
@@ -333,6 +279,8 @@ export default function QuizzesList() {
                                 </span>
                                 <div className="relative">
                                     <select
+                                        value={selectedDifficulty}
+                                        onChange={(e) => setSelectedDifficulty(e.target.value)}
                                         className="appearance-none bg-gray-50 border border-gray-200 rounded-lg px-4 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
                                     >
                                         {difficulties.map(diff => (
@@ -343,42 +291,29 @@ export default function QuizzesList() {
                                 </div>
                             </div>
 
-                            {/* Status */}
-                            <div className="flex items-center gap-2 ml-auto">
+                            {/* Sort By */}
+                            {/* <div className="flex items-center gap-2 ml-auto">
                                 <span className="text-sm text-gray-600 font-medium">
-                                    Status:
+                                    Sort by:
                                 </span>
                                 <div className="relative">
                                     <select
+                                        value={sortBy}
+                                        onChange={(e) => setSortBy(e.target.value)}
                                         className="appearance-none bg-gray-50 border border-gray-200 rounded-lg px-4 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
                                     >
-                                        <option value="popular">
-                                            Most Popular
-                                        </option>
-                                        <option value="rating">
-                                            Highest Rated
-                                        </option>
-                                        <option value="newest">
-                                            Newest
-                                        </option>
-                                        <option value="shortest">
-                                            Shortest
-                                        </option>
-                                        <option value="longest">
-                                            Longest
-                                        </option>
+                                        <option value="popular">Most Popular</option>
+                                        <option value="rating">Highest Rated</option>
+                                        <option value="newest">Newest</option>
                                     </select>
                                     <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
                                 </div>
-                            </div>
+                            </div> */}
                         </div>
 
                         {/* Results Count */}
                         <div className="text-sm text-gray-600">
-                            Showing {" "}
-                            <span className="font-semibold text-gray-900">
-                                {/* {quizzes.length} */}
-                            </span> quizzes
+                            Showing <span className="font-semibold text-gray-900">{filteredQuizzes.length}</span> quizzes
                         </div>
                     </div>
 
@@ -409,63 +344,70 @@ export default function QuizzesList() {
                                     ))}
                                 </select>
                             </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Status
-                                </label>
+                            {/* <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Sort by</label>
                                 <select
-                                    value={status}
-                                    onChange={(e) => setStatus(e.target.value)}
+                                    value={sortBy}
+                                    onChange={(e) => setSortBy(e.target.value)}
                                     className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 >
-                                    <option value="popular">
-                                        Most Popular
-                                    </option>
-                                    <option value="rating">
-                                        Highest Rated
-                                    </option>
-                                    <option value="newest">
-                                        Newest
-                                    </option>
-                                    <option value="shortest">
-                                        Shortest
-                                    </option>
-                                    <option value="longest">
-                                        Longest
-                                    </option>
+                                    <option value="popular">Most Popular</option>
+                                    <option value="rating">Highest Rated</option>
+                                    <option value="newest">Newest</option>
                                 </select>
-                            </div>
+                            </div> */}
                         </div>
                     )}
 
-                    {/* Quizzes List - Grid View */}
-                    {viewMode === 'grid' && (
-                        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-15">
-                            {quizzes.map((quiz) => (
-                                <AdminQuizCardGrid
-                                    key={quiz.id}
-                                    quiz={quiz}
-                                />
-                            ))}
-                        </div>
-                    )}
+                    {/* ✅ Empty State OR Content */}
+                    {filteredQuizzes.length === 0 ? (
+                        <EmptyState />
+                    ) : (
+                        <>
+                            {loading ? (
+                                <div className="w-full flex justify-center py-10">
+                                    {/* Loading placeholder */}
+                                </div>
+                            ) : (
+                                <>
+                                    {/* Grid View */}
+                                    {viewMode === 'grid' && (
+                                        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-15">
+                                            {filteredQuizzes.map((quiz) => (
+                                                <AdminQuizCardGrid
+                                                    key={quiz.quizId}
+                                                    quiz={quiz}
+                                                />
+                                            ))}
+                                        </div>
+                                    )}
 
-                    {/* Quizzes List - List View */}
-                    {viewMode === 'list' && (
-                        <div className="space-y-6 pb-20">
-                            {quizzes.map((quiz, index) => (
-                                <AdminQuizCardList
-                                    key={index}
-                                    quiz={quiz}
-                                />
-                            ))}
-                        </div>
-                    )}
+                                    {/* List View */}
+                                    {viewMode === 'list' && (
+                                        <div className="space-y-6 pb-20">
+                                            {filteredQuizzes.map((quiz) => (
+                                                <AdminQuizCardList
+                                                    key={quiz.quizId}
+                                                    quiz={quiz}
+                                                />
+                                            ))}
+                                        </div>
+                                    )}
 
-                    {/* Pagination */}
-                    <Pagination />
+                                    {/* Pagination */}
+                                    <div className="flex justify-center mt-8">
+                                        <Pagination
+                                            currentPage={currentPage}
+                                            totalPages={totalPages}
+                                            handlePageChange={handlePageChange}
+                                        />
+                                    </div>
+                                </>
+                            )}
+                        </>
+                    )}
                 </div>
             </div>
-        </div >
+        </div>
     )
 }

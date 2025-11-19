@@ -9,7 +9,7 @@ export default function CreateStepTwoHeader() {
     }
 
     return (
-        <header className="bg-white shadow-sm max-w-7xl px-4 sm:px-6 lg:px-8">
+        <header className="bg-white shadow-sm min-w-full px-4 sm:px-6 lg:px-8">
             <div className="flex flex-col">
                 <div className="flex justify-between items-center h-20 gap-6">
                     {/* Logo */}
@@ -30,7 +30,7 @@ export default function CreateStepTwoHeader() {
                     {/* Current Step */}
                     <div className="text-left mr-auto">
                         <p className="text-left text-lg font-semibold">
-                            Step 1 of 2
+                            Step 2 of 2
                         </p>
                     </div>
 

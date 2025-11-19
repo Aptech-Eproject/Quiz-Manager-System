@@ -2,13 +2,14 @@ import { Route } from 'react-router-dom'
 
 import ProtectedRouter from "../router/ProtectedRouter";
 import QuizPlay from '../../features/quiz/pages/QuizPlay'
+import QuizPreview from '../../features/quiz/pages/QuizPreview';
 
 export default function UserRoutes() {
     return (
         <>
             <Route element={<ProtectedRouter allowedRoles={['user']} />}>
-                {/* <Route path='/quiz/:id/play' element='' /> */}
-                <Route path='/quiz/1/play' element={<QuizPlay />} />
+                <Route path='/quiz/:quizId/play' element={<QuizPlay />} />
+                <Route path='/quiz/:quizId/preview/' element={<QuizPreview />} />
             </Route>
         </>
     )

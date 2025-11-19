@@ -44,7 +44,7 @@ module.exports = {
         type: Sequelize.INTEGER,
       },
       status: {
-        type: Sequelize.ENUM('draft', 'public', 'cancel'),
+        type: Sequelize.ENUM('draft', 'published', 'cancelled'),
         defaultValue: 'draft'
       },
       createdAt: {
