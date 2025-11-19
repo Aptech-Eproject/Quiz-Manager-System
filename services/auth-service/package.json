@@ -7,7 +7,11 @@
     "start": "node index.js",
     "dev": "nodemon index.js",
     "db:migrate": "sequelize-cli db:migrate",
-    "db:seed": "sequelize-cli db:seed:all"
+    "db:seed": "sequelize-cli db:seed:all",
+    "db:seed:undo": "sequelize-cli db:seed:undo:all",
+    "db:migrate:undo": "sequelize-cli db:migrate:undo:all",
+    "db:migrate:drop": "sequelize-cli db:drop",
+    "db:migrate:create": "sequelize-cli db:create"
   },
   "keywords": [],
   "author": "",

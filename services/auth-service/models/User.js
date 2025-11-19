@@ -9,7 +9,7 @@ module.exports = (sequelize, DataTypes) => {
       google_id: { type: DataTypes.STRING, allowNull: true },
       avatar: { type: DataTypes.TEXT, allowNull: true },
       is_password_set: { type: DataTypes.BOOLEAN, defaultValue: false },
-      role: { type: DataTypes.STRING, defaultValue: "user" },
+      role: { type: DataTypes.ENUM("admin", "user"), defaultValue: "user" },
     },
     {
       tableName: "users",
