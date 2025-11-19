@@ -7,7 +7,7 @@ import QuizPreview from '../../features/quiz/pages/QuizPreview';
 export default function UserRoutes() {
     return (
         <>
-            <Route element={<ProtectedRouter allowedRoles={['user']} />}>
+            <Route element={<ProtectedRouter allowedRoles={['user','admin']} />}>
                 <Route path='/quiz/:quizId/play' element={<QuizPlay />} />
                 <Route path='/quiz/:quizId/preview/' element={<QuizPreview />} />
             </Route>
