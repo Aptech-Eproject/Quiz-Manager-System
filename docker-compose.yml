@@ -160,9 +160,9 @@ services:
     networks:
       - quiz-net
 
-  frontend:
-    build: ./frontend
-    container_name: quiz-frontend
+  frontend-old:
+    build: ./frontendOld
+    container_name: quiz-frontend-old
     restart: always
     ports:
       - "3000:80"       # React build serve qua Nginx port 80 → host port 3000

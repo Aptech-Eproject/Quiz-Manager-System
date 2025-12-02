@@ -22,17 +22,17 @@ services:
       - ./services/result-service/:/app
       - /app/node_modules
     command: npm run dev
-  frontend:
+  frontend-old:
       build: 
-        context: ./frontend
+        context: ./frontendOld
         dockerfile: Dockerfile.dev
       ports:
         - "5173:5173"
       volumes:
-        - ./frontend:/app
+        - ./frontendOld:/app
         - /app/node_modules
       command: ["npm", "run", "dev", "--", "--host"]
       networks:
         - quiz-net
       env_file:
-        - ./frontend/.env
+        - ./frontendOld/.env
