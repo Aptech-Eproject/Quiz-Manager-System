@@ -28,6 +28,7 @@ jobs:
           cd ../auth-service && npm ci
           cd ../quiz-service && npm ci
           cd ../result-service && npm ci
+          cd ../../archive/frontendOld && npm ci
 
 
       - name: Run linting
@@ -36,6 +37,7 @@ jobs:
           cd ../auth-service && npm run lint || echo "No lint"
           cd ../quiz-service && npm run lint || echo "No lint"
           cd ../result-service && npm run lint || echo "No lint"
+          cd ../../archive/frontendOld && npm run lint
 
   integration-test:
     name: Integration Test
