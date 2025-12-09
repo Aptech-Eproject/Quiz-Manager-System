@@ -1,0 +1,109 @@
+version: '3.9'
+
+services:
+  # ---------------------------------------------------
+  # 🚪 API Gateway — Production
+  # ---------------------------------------------------
+  gateway:
+    build:
+      context: ./gateway
+      dockerfile: docker/Dockerfile.prod
+    container_name: gateway_prod
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./gateway/.env
+    environment:
+      - NODE_ENV=production
+    depends_on:
+      - auth-service
+      - quiz-service
+      - result-service
+    restart: unless-stopped
+    networks:
+      - quiz-net
+
+  # ---------------------------------------------------
+  # 🔐 Auth Service — Production
+  # ---------------------------------------------------
+  auth-service:
+    build:
+      context: ./services/auth-service
+      dockerfile: docker/Dockerfile.prod
+    container_name: auth_service_prod
+    expose:
+      - "5000"
+    env_file:
+      - ./services/auth-service/.env
+    environment:
+      - NODE_ENV=production
+    depends_on:
+      - mysql-db
+    restart: unless-stopped
+    networks:
+      - quiz-net
+
+  # ---------------------------------------------------
+  # 🧠 Quiz Service — Production
+  # ---------------------------------------------------
+  quiz-service:
+    build:
+      context: ./services/quiz-service
+      dockerfile: docker/Dockerfile.prod
+    container_name: quiz_service_prod
+    expose:
+      - "5001"
+    env_file:
+      - ./services/quiz-service/.env
+    environment:
+      - NODE_ENV=production
+    depends_on:
+      - mysql-db
+    restart: unless-stopped
+    networks:
+      - quiz-net
+
+  # ---------------------------------------------------
+  # 📊 Result Service — Production
+  # ---------------------------------------------------
+  result-service:
+    build:
+      context: ./services/result-service
+      dockerfile: docker/Dockerfile.prod
+    container_name: result_service_prod
+    expose:
+      - "5002"
+    env_file:
+      - ./services/result-service/.env
+    environment:
+      - NODE_ENV=production
+    depends_on:
+      - mysql-db
+    restart: unless-stopped
+    networks:
+      - quiz-net
+
+  # ---------------------------------------------------
+  # 🛢️ MySQL — Production
+  # ---------------------------------------------------
+  mysql-db:
+    image: mysql:8.0
+    container_name: mysql_prod
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+    volumes:
+      - mysql_data_prod:/var/lib/mysql
+      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    restart: unless-stopped
+    networks:
+      - quiz-net
+
+# ---------------------------------------------------
+# 🌐 Networks & Volumes
+# ---------------------------------------------------
+networks:
+  quiz-net:
+    driver: bridge
+
+volumes:
+  mysql_data_prod:

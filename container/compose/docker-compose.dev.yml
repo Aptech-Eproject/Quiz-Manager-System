@@ -1,0 +1,150 @@
+version: '3.9'
+
+services:
+  # ---------------------------------------------------
+  # 🚪 API Gateway — Hot reload
+  # ---------------------------------------------------
+  gateway:
+    build:
+      context: ../../backend/api-gateway
+      dockerfile: ../dockerfiles/dev/gateway.dev.Dockerfile
+    container_name: gateway_dev
+    ports:
+      - "8000:8000"     # public gateway
+    volumes:
+      - ./gateway:/app
+      - gateway_node:/app/node_modules
+    env_file:
+      - ./gateway/.env
+    depends_on:
+      - auth-service
+      - quiz-service
+      - result-service
+    networks:
+      - quiz-net
+
+  # ---------------------------------------------------
+  # 🔐 Auth Service — Node + Hot reload
+  # ---------------------------------------------------
+  auth-service:
+    build:
+      context: ./services/auth-service
+      dockerfile: docker/Dockerfile.dev
+    container_name: auth_service_dev
+    expose:
+      - "5000"          # chỉ lắng nghe trong mạng trong docker, KHÔNG public
+    volumes:
+      - ./services/auth-service:/app
+      - auth_node:/app/node_modules
+    env_file:
+      - ./services/auth-service/.env
+    depends_on:
+      - mysql-db
+    networks:
+      - quiz-net
+
+  # ---------------------------------------------------
+  # 🧠 Quiz Service — Node + Hot reload
+  # ---------------------------------------------------
+  quiz-service:
+    build:
+      context: ./services/quiz-service
+      dockerfile: docker/Dockerfile.dev
+    container_name: quiz_service_dev
+    expose:
+      - "5001"
+    volumes:
+      - ./services/quiz-service:/app
+      - quiz_node:/app/node_modules
+    env_file:
+      - ./services/quiz-service/.env
+    depends_on:
+      - mysql-db
+    networks:
+      - quiz-net
+
+  # ---------------------------------------------------
+  # 📊 Result Service — Node + Hot reload
+  # ---------------------------------------------------
+  result-service:
+    build:
+      context: ./services/result-service
+      dockerfile: docker/Dockerfile.dev
+    container_name: result_service_dev
+    expose:
+      - "5002"
+    volumes:
+      - ./services/result-service:/app
+      - result_node:/app/node_modules
+    env_file:
+      - ./services/result-service/.env
+    depends_on:
+      - mysql-db
+    networks:
+      - quiz-net
+
+  # ---------------------------------------------------
+  # 🛢️ MySQL – DEV mode
+  # ---------------------------------------------------
+  mysql-db:
+    image: mysql:8.0
+    container_name: mysql_dev
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3306:3306"          
+    volumes:
+      - mysql_data_dev:/var/lib/mysql
+      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    networks:
+      - quiz-net
+
+  # ---------------------------------------------------
+  # 🧭 phpMyAdmin — optional dev tool
+  # ---------------------------------------------------
+  phpmyadmin:
+    image: phpmyadmin:5
+    container_name: phpmyadmin_dev
+    ports:
+      - "8081:80"
+    environment:
+      PMA_HOST: mysql-db
+      PMA_USER: root
+      PMA_PASSWORD: root
+    depends_on:
+      - mysql-db
+    networks:
+      - quiz-net
+
+  # ---------------------------------------------------
+  # 🌐 Frontend Old — Dev (React Hot reload)
+  # ---------------------------------------------------
+  frontend-old:
+    build:
+      context: ./frontendOld
+      dockerfile: Dockerfile.dev
+    container_name: frontend_old_dev
+    ports:
+      - "5173:5173"   
+    volumes:
+      - ./frontendOld:/app
+      - /app/node_modules
+    env_file:
+      - ./frontendOld/.env
+    depends_on:
+      - gateway
+    networks:
+      - quiz-net
+
+# ---------------------------------------------------
+# 🌐 Networks & Volumes
+# ---------------------------------------------------
+networks:
+  quiz-net:
+
+volumes:
+  gateway_node:
+  auth_node:
+  quiz_node:
+  result_node:
+  mysql_data_dev:
