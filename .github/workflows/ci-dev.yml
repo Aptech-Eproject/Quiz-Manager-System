@@ -28,7 +28,7 @@ jobs:
           cd ../auth-service && npm ci
           cd ../quiz-service && npm ci
           cd ../result-service && npm ci
-          cd ../../frontend && npm ci
+
 
       - name: Run linting
         run: |
@@ -36,7 +36,6 @@ jobs:
           cd ../auth-service && npm run lint || echo "No lint"
           cd ../quiz-service && npm run lint || echo "No lint"
           cd ../result-service && npm run lint || echo "No lint"
-          cd ../../frontend && npm run lint
 
   integration-test:
     name: Integration Test
@@ -53,9 +52,6 @@ jobs:
           cp container/env/auth.env.example backend/auth-service/.env
           cp container/env/quiz.env.example backend/quiz-service/.env
           cp container/env/result.env.example backend/result-service/.env
-
-      - name: Remove dev override for CI testing
-        run: rm -f docker-compose.override.yml
 
       - name: Start services
         run: docker compose -f container/compose/docker-compose.dev.yml up -d

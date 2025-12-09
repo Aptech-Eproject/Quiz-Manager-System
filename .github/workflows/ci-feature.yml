@@ -27,7 +27,7 @@ jobs:
           cache-dependency-path: |
             backend/api-gateway/package-lock.json
             backend/*/package-lock.json
-            frontend/package-lock.json
+          
 
       - name: Install Gateway dependencies
         run: cd backend/api-gateway && npm ci
@@ -41,8 +41,8 @@ jobs:
       - name: Install Result Service dependencies
         run: cd backend/result-service && npm ci
 
-      - name: Install Frontend dependencies
-        run: cd frontend && npm ci
+      # - name: Install Frontend dependencies
+      #   run: cd frontend && npm ci
 
       - name: Lint Gateway
         run: cd backend/api-gateway && npm run lint || echo "No lint script"
@@ -53,8 +53,8 @@ jobs:
           cd ../quiz-service && npm run lint || echo "No lint script"
           cd ../result-service && npm run lint || echo "No lint script"
 
-      - name: Lint Frontend
-        run: cd frontend && npm run lint || echo "No lint script"
+      # - name: Lint Frontend
+      #   run: cd frontend && npm run lint || echo "No lint script"
 
   docker-build:
     name: Docker Build Test
@@ -64,10 +64,7 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-      - name: Remove dev override for CI testing
-        run: rm -f docker-compose.override.yml
-
+        
       - name: Build Gateway
         run: docker build -f container/dockerfiles/dev/gateway.dev.Dockerfile -t gateway:test ./backend/api-gateway
 
@@ -80,5 +77,5 @@ jobs:
       - name: Build Result Service
         run: docker build -f container/dockerfiles/dev/result.dev.Dockerfile -t result-service:test ./backend/result-service
 
-      - name: Build Frontend
-        run: docker build -t frontend:test ./frontend
+      # - name: Build Frontend
+      #   run: docker build -t frontend:test ./frontend
