@@ -54,6 +54,7 @@ jobs:
           cp container/env/auth.env.example backend/auth-service/.env
           cp container/env/quiz.env.example backend/quiz-service/.env
           cp container/env/result.env.example backend/result-service/.env
+          cp archive/frontendOld/.env.example archive/frontendOld/.env
 
       - name: Start services
         run: docker compose -f container/compose/docker-compose.dev.yml up -d
@@ -100,6 +101,7 @@ jobs:
           cp container/env/auth.env.example backend/auth-service/.env
           cp container/env/quiz.env.example backend/quiz-service/.env
           cp container/env/result.env.example backend/result-service/.env
+          cp archive/frontendOld/.env.example archive/frontendOld/.env
 
       - name: Build all images
         run: docker compose -f container/compose/docker-compose.dev.yml build
