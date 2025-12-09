@@ -80,7 +80,7 @@ jobs:
 
       - name: Show logs on failure
         if: failure()
-        run: docker compose logs
+        run: docker compose -f container/compose/docker-compose.dev.yml logs
 
       - name: Cleanup
         if: always()
