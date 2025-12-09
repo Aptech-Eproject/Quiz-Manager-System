@@ -24,19 +24,18 @@ jobs:
 
       - name: Install all dependencies
         run: |
-          cd gateway && npm ci
-          cd ../services/auth-service && npm ci
+          cd backend/api-gateway && npm ci
+          cd ../auth-service && npm ci
           cd ../quiz-service && npm ci
           cd ../result-service && npm ci
-          cd ../../frontend && npm ci
+
 
       - name: Run linting
         run: |
-          cd gateway && npm run lint || echo "No lint"
-          cd ../services/auth-service && npm run lint || echo "No lint"
+          cd backend/api-gateway && npm run lint || echo "No lint"
+          cd ../auth-service && npm run lint || echo "No lint"
           cd ../quiz-service && npm run lint || echo "No lint"
           cd ../result-service && npm run lint || echo "No lint"
-          cd ../../frontend && npm run lint
 
   integration-test:
     name: Integration Test
@@ -49,16 +48,13 @@ jobs:
 
       - name: Create .env files
         run: |
-          cp gateway/.env.example gateway/.env || echo "PORT=8000" > gateway/.env
-          cp services/auth-service/.env.example services/auth-service/.env || true
-          cp services/quiz-service/.env.example services/quiz-service/.env || true
-          cp services/result-service/.env.example services/result-service/.env || true
-
-      - name: Remove dev override for CI testing
-        run: rm -f docker-compose.override.yml
+          cp container/env/gateway.env.example backend/api-gateway/.env
+          cp container/env/auth.env.example backend/auth-service/.env
+          cp container/env/quiz.env.example backend/quiz-service/.env
+          cp container/env/result.env.example backend/result-service/.env
 
       - name: Start services
-        run: docker compose up -d
+        run: docker compose -f container/compose/docker-compose.dev.yml up -d
 
       - name: Wait for services
         run: sleep 30
@@ -85,7 +81,7 @@ jobs:
 
       - name: Cleanup
         if: always()
-        run: docker compose down -v
+        run: docker compose -f container/compose/docker-compose.dev.yml down -v
 
   docker-build:
     name: Build All Docker Images
@@ -98,23 +94,10 @@ jobs:
 
       - name: Create .env files for build
         run: |
-          if [ -f gateway/.env.example ]; then
-            cp gateway/.env.example gateway/.env
-          else
-            echo "PORT=8000" > gateway/.env
-          fi
-
-          [ -f services/auth-service/.env.example ] \
-            && cp services/auth-service/.env.example services/auth-service/.env \
-            || touch services/auth-service/.env
-
-          [ -f services/quiz-service/.env.example ] \
-            && cp services/quiz-service/.env.example services/quiz-service/.env \
-            || touch services/quiz-service/.env
-          
-          [ -f services/result-service/.env.example ] \
-            && cp services/result-service/.env.example services/result-service/.env \
-            || touch services/result-service/.env
+          cp container/env/gateway.env.example backend/api-gateway/.env
+          cp container/env/auth.env.example backend/auth-service/.env
+          cp container/env/quiz.env.example backend/quiz-service/.env
+          cp container/env/result.env.example backend/result-service/.env
 
       - name: Build all images
-        run: docker compose build
+        run: docker compose -f container/compose/docker-compose.dev.yml build

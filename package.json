@@ -1,6 +1,62 @@
 {
-  "dependencies": {
-    "canvas-confetti": "^1.9.4",
-    "lucide-react": "^0.553.0"
-  }
+  "name": "quiz-manager-system",
+  "version": "1.0.0",
+  "description": "``` ┌─────────────┐ │   Frontend  │ :3000 │  (React)    │ └──────┬──────┘        │ ┌──────▼──────────┐ │  API Gateway    │ :8000 └────┬─────┬─────┬┘      │     │     │ ┌────▼─┐ ┌─▼───┐ ┌▼────┐ │Auth  │ │Quiz │ │Result│ │:5000 │ │:5001│ │:5002 │ └──┬───┘ └──┬──┘ └──┬───┘    │        │       │    └────────┴───────┘             │    ┌────────▼─────────┐    │ MySQL Container  │ :3306    ├──────────────────┤    │ 📁 auth_db       │    │ 📁 quiz_db       │    │ 📁 result_db     │    └──────────────────┘ ```",
+  "main": "index.js",
+  "scripts": {
+    "//": "*********************  DEV LOCAL  ************************",
+
+    "setup:dev": "bash container/scripts/setup.dev.sh",
+    "dev": "npm run setup:dev && docker compose -p quiz-manager-system -f container/compose/docker-compose.dev.yml up",
+    "dev:up": "docker compose -p quiz-manager-system -f container/compose/docker-compose.dev.yml up -d",
+    "dev:down": "docker compose -p quiz-manager-system -f container/compose/docker-compose.dev.yml down",
+    "dev:build": "docker compose -p quiz-manager-system -f container/compose/docker-compose.dev.yml up --build",
+    "dev:rebuild": "docker compose -p quiz-manager-system -f container/compose/docker-compose.dev.yml up --build -d",
+    "dev:gateway": "docker exec -it gateway_dev sh",
+    "dev:auth": "docker exec -it auth_service_dev sh",
+    "dev:quiz": "docker exec -it quiz_service_dev sh",
+    "dev:result": "docker exec -it result_service_dev sh",
+    "dev:logs": "docker compose -p quiz-manager-system -f container/compose/docker-compose.dev.yml logs -f --tail=200",
+    "dev:log:gateway": "docker compose -p quiz-manager-system -f container/compose/docker-compose.dev.yml logs -f gateway",
+    "dev:log:auth": "docker compose -p quiz-manager-system -f container/compose/docker-compose.dev.yml logs -f auth-service",
+    "dev:log:quiz": "docker compose -p quiz-manager-system -f container/compose/docker-compose.dev.yml logs -f quiz-service",
+    "dev:log:result": "docker compose -p quiz-manager-system -f container/compose/docker-compose.dev.yml logs -f result-service",
+    "dev:log:frontendOld": "docker compose -p quiz-manager-system -f container/compose/docker-compose.dev.yml logs -f frontend-old",
+    "dev:db:reset": "docker compose -p quiz-manager-system -f container/compose/docker-compose.dev.yml down -v && docker compose -f container/compose/docker-compose.dev.yml up -d mysql-db",
+    "dev:db:logs": "docker compose -p quiz-manager-system -f container/compose/docker-compose.dev.yml logs -f mysql-db",
+
+    "prod": "docker compose -f container/compose/docker-compose.prod.yml up",
+    "prod:up": "docker compose -f container/compose/docker-compose.prod.yml up -d",
+    "prod:down": "docker compose -f container/compose/docker-compose.prod.yml down",
+    "prod:build": "docker compose -f container/compose/docker-compose.prod.yml up --build -d",
+    "prod:logs": "docker compose -f container/compose/docker-compose.prod.yml logs -f --tail=200",
+
+    "//":"*********************** DOCKER  **********************",
+
+    "docker:ps": "docker ps -a",
+    "docker:stop-all": "docker stop $(docker ps -aq) || true",
+    "docker:rm-all": "docker rm -f $(docker ps -aq) || true",
+    "docker:prune": "docker system prune -af --volumes",
+    "docker:images": "docker images",
+    "docker:rmi-unused": "docker image prune -a -f",
+    "docker:volume-list": "docker volume ls",
+    "docker:volume-prune": "docker volume prune -f",
+    "docker:network-list": "docker network ls",
+    "docker:network-prune": "docker network prune -f",
+    "docker:reset": "npm run docker:stop-all && npm run docker:rm-all && npm run docker:prune",
+    "docker:clean-cache": "docker builder prune -af",
+    "docker:fix-permission": "sudo chown -R $USER:$USER ~/.docker || true"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Aptech-Eproject/Quiz-Manager-System.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Aptech-Eproject/Quiz-Manager-System/issues"
+  },
+  "homepage": "https://github.com/Aptech-Eproject/Quiz-Manager-System#readme"
 }
