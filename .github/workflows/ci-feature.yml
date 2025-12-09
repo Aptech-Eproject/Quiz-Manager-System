@@ -25,31 +25,31 @@ jobs:
           node-version: '20'
           cache: 'npm'
           cache-dependency-path: |
-            gateway/package-lock.json
-            services/*/package-lock.json
+            backend/api-gateway/package-lock.json
+            backend/*/package-lock.json
             frontend/package-lock.json
 
       - name: Install Gateway dependencies
-        run: cd gateway && npm ci
+        run: cd backend/api-gateway && npm ci
 
       - name: Install Auth Service dependencies
-        run: cd services/auth-service && npm ci
+        run: cd backend/auth-service && npm ci
 
       - name: Install Quiz Service dependencies
-        run: cd services/quiz-service && npm ci
+        run: cd backend/quiz-service && npm ci
 
       - name: Install Result Service dependencies
-        run: cd services/result-service && npm ci
+        run: cd backend/result-service && npm ci
 
       - name: Install Frontend dependencies
         run: cd frontend && npm ci
 
       - name: Lint Gateway
-        run: cd gateway && npm run lint || echo "No lint script"
+        run: cd backend/api-gateway && npm run lint || echo "No lint script"
 
       - name: Lint Services
         run: |
-          cd services/auth-service && npm run lint || echo "No lint script"
+          cd backend/auth-service && npm run lint || echo "No lint script"
           cd ../quiz-service && npm run lint || echo "No lint script"
           cd ../result-service && npm run lint || echo "No lint script"
 
@@ -69,16 +69,16 @@ jobs:
         run: rm -f docker-compose.override.yml
 
       - name: Build Gateway
-        run: docker build -t gateway:test ./gateway
+        run: docker build -f container/dockerfiles/dev/gateway.dev.Dockerfile -t gateway:test ./backend/api-gateway
 
       - name: Build Auth Service
-        run: docker build -t auth-service:test ./services/auth-service
+        run: docker build -f container/dockerfiles/dev/auth.dev.Dockerfile -t auth-service:test ./backend/auth-service
 
       - name: Build Quiz Service
-        run: docker build -t quiz-service:test ./services/quiz-service
+        run: docker build -f container/dockerfiles/dev/quiz.dev.Dockerfile -t quiz-service:test ./backend/quiz-service
 
       - name: Build Result Service
-        run: docker build -t result-service:test ./services/result-service
+        run: docker build -f container/dockerfiles/dev/result.dev.Dockerfile -t result-service:test ./backend/result-service
 
       - name: Build Frontend
         run: docker build -t frontend:test ./frontend

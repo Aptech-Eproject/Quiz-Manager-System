@@ -16,26 +16,25 @@ jobs:
 
       - name: Create .env files
         run: |
-          cp gateway/.env.example gateway/.env || echo "PORT=8000" > gateway/.env
-          cp services/auth-service/.env.example services/auth-service/.env || true
-          cp services/quiz-service/.env.example services/quiz-service/.env || true
-          cp services/result-service/.env.example services/result-service/.env || true
+          cp container/env/gateway.env.example backend/api-gateway/.env
+          cp container/env/auth.env.example backend/auth-service/.env
+          cp container/env/quiz.env.example backend/quiz-service/.env
+          cp container/env/result.env.example backend/result-service/.env
 
       - name: Remove dev override for production
         run: rm -f docker-compose.override.yml
 
       - name: Validate docker-compose
-        run: docker compose config --quiet
+        run: docker compose -f container/compose/docker-compose.prod.yml config --quiet
 
       - name: Check required files
         run: |
-          test -f docker-compose.yml || exit 1
-          test -f scripts/init-db.sql || exit 1
-          test -f services/auth-service/Dockerfile || exit 1
-          test -f services/quiz-service/Dockerfile || exit 1
-          test -f services/result-service/Dockerfile || exit 1
-          test -f gateway/Dockerfile || exit 1
-          test -f frontend/Dockerfile || exit 1
+          test -f container/compose/docker-compose.prod.yml || exit 1
+          test -f container/scripts/init-db.sql || exit 1
+          test -f container/dockerfiles/production/auth.prod.Dockerfile || exit 1
+          test -f container/dockerfiles/production/quiz.prod.Dockerfile || exit 1
+          test -f container/dockerfiles/production/result.prod.Dockerfile || exit 1
+          test -f container/dockerfiles/production/gateway.prod.Dockerfile || exit 1
           echo "✅ All required files present"
 
   # TODO: Add deployment steps here
