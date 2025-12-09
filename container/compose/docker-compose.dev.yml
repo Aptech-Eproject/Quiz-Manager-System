@@ -7,19 +7,27 @@ services:
   gateway:
     build:
       context: ../../backend/api-gateway
-      dockerfile: ../dockerfiles/dev/gateway.dev.Dockerfile
+      dockerfile: ../../container/dockerfiles/dev/gateway.dev.Dockerfile
     container_name: gateway_dev
     ports:
       - "8000:8000"     # public gateway
     volumes:
-      - ./gateway:/app
+      - ../../backend/api-gateway:/app
       - gateway_node:/app/node_modules
     env_file:
-      - ./gateway/.env
+      - ../../backend/api-gateway/.env
     depends_on:
       - auth-service
       - quiz-service
       - result-service
+    deploy:
+      resources:
+        limits:
+          cpus: 0.5
+          memory: 256M
+        reservations:
+          cpus: 0.25
+          memory: 128M
     networks:
       - quiz-net
 
@@ -28,18 +36,26 @@ services:
   # ---------------------------------------------------
   auth-service:
     build:
-      context: ./services/auth-service
-      dockerfile: docker/Dockerfile.dev
+      context: ../../backend/auth-service
+      dockerfile: ../../container/dockerfiles/dev/auth.dev.Dockerfile
     container_name: auth_service_dev
     expose:
       - "5000"          # chỉ lắng nghe trong mạng trong docker, KHÔNG public
     volumes:
-      - ./services/auth-service:/app
+      - ../../backend/auth-service:/app
       - auth_node:/app/node_modules
     env_file:
-      - ./services/auth-service/.env
+      - ../../backend/auth-service/.env
     depends_on:
       - mysql-db
+    deploy:
+      resources:
+        limits:
+          cpus: 0.5
+          memory: 128M
+        reservations:
+          cpus: 0.25
+          memory: 64M
     networks:
       - quiz-net
 
@@ -48,18 +64,26 @@ services:
   # ---------------------------------------------------
   quiz-service:
     build:
-      context: ./services/quiz-service
-      dockerfile: docker/Dockerfile.dev
+      context: ../../backend/quiz-service
+      dockerfile: ../../container/dockerfiles/dev/quiz.dev.Dockerfile
     container_name: quiz_service_dev
     expose:
       - "5001"
     volumes:
-      - ./services/quiz-service:/app
+      - ../../backend/quiz-service:/app
       - quiz_node:/app/node_modules
     env_file:
-      - ./services/quiz-service/.env
+      - ../../backend/quiz-service/.env
     depends_on:
       - mysql-db
+    deploy:
+      resources:
+        limits:
+          cpus: 0.5
+          memory: 256M
+        reservations:
+          cpus: 0.25
+          memory: 128M
     networks:
       - quiz-net
 
@@ -68,18 +92,26 @@ services:
   # ---------------------------------------------------
   result-service:
     build:
-      context: ./services/result-service
-      dockerfile: docker/Dockerfile.dev
+      context: ../../backend/result-service
+      dockerfile: ../../container/dockerfiles/dev/result.dev.Dockerfile
     container_name: result_service_dev
     expose:
       - "5002"
     volumes:
-      - ./services/result-service:/app
+      - ../../backend/result-service:/app
       - result_node:/app/node_modules
     env_file:
-      - ./services/result-service/.env
+      - ../../backend/result-service/.env
     depends_on:
       - mysql-db
+    deploy:
+      resources:
+        limits:
+          cpus: 0.5
+          memory: 256M
+        reservations:
+          cpus: 0.25
+          memory: 128M
     networks:
       - quiz-net
 
@@ -95,7 +127,15 @@ services:
       - "3306:3306"          
     volumes:
       - mysql_data_dev:/var/lib/mysql
-      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+      - ../scripts/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    deploy:
+      resources:
+        limits:
+          cpus: 0.5
+          memory: 512M
+        reservations:
+          cpus: 0.5
+          memory: 128M
     networks:
       - quiz-net
 
@@ -113,6 +153,14 @@ services:
       PMA_PASSWORD: root
     depends_on:
       - mysql-db
+    deploy:
+      resources:
+        limits:
+          cpus: 0.25
+          memory: 64M
+        reservations:
+          cpus: 0.25
+          memory: 32M
     networks:
       - quiz-net
 
@@ -121,18 +169,48 @@ services:
   # ---------------------------------------------------
   frontend-old:
     build:
-      context: ./frontendOld
+      context: ../../archive/frontendOld
       dockerfile: Dockerfile.dev
     container_name: frontend_old_dev
     ports:
       - "5173:5173"   
     volumes:
-      - ./frontendOld:/app
+      - ../../archive/frontendOld:/app
       - /app/node_modules
     env_file:
-      - ./frontendOld/.env
+      - ../../archive/frontendOld/.env
     depends_on:
       - gateway
+    deploy:
+      resources:
+        limits:
+          cpus: 0.5
+          memory: 512M
+        reservations:
+          cpus: 0.25
+          memory: 256M
+    networks:
+      - quiz-net
+    
+  # ---------------------------------------------------
+  # ⚡ Redis — Cache / Queue / Session
+  # ---------------------------------------------------
+  redis:
+    image: redis:7-alpine
+    container_name: redis_dev
+    ports:
+      - "6379:6379"  
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_data_dev:/data
+    deploy:
+      resources:
+        limits:
+          cpus: 0.25
+          memory: 128M
+        reservations:
+          cpus: 0.1
+          memory: 64M
     networks:
       - quiz-net
 
@@ -141,6 +219,7 @@ services:
 # ---------------------------------------------------
 networks:
   quiz-net:
+    name: quiz-net
 
 volumes:
   gateway_node:
@@ -148,3 +227,4 @@ volumes:
   quiz_node:
   result_node:
   mysql_data_dev:
+  redis_data_dev:
