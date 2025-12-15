@@ -103,23 +103,23 @@ jobs:
       - name: Build & Push API Gateway
         run: |
           docker build -f container/dockerfiles/dev/gateway.dev.Dockerfile \
-            -t mintri269/qms-gateway:dev backend/api-gateway
-          docker push mintri269/qms-gateway:dev
+            -t minhtri269/qms-gateway:dev backend/api-gateway
+          docker push minhtri269/qms-gateway:dev
 
       - name: Build & Push Auth Service
         run: |
           docker build -f container/dockerfiles/dev/auth.dev.Dockerfile \
-            -t mintri269/qms-auth:dev backend/auth-service
-          docker push mintri269/qms-auth:dev
+            -t minhtri269/qms-auth:dev backend/auth-service
+          docker push minhtri269/qms-auth:dev
 
       - name: Build & Push Quiz Service
         run: |
           docker build -f container/dockerfiles/dev/quiz.dev.Dockerfile \
-            -t mintri269/qms-quiz:dev backend/quiz-service
-          docker push mintri269/qms-quiz:dev
+            -t minhtri269/qms-quiz:dev backend/quiz-service
+          docker push minhtri269/qms-quiz:dev
 
       - name: Build & Push Result Service
         run: |
           docker build -f container/dockerfiles/dev/result.dev.Dockerfile \
-            -t mintri269/qms-result:dev backend/result-service
-          docker push mintri269/qms-result:dev
+            -t minhtri269/qms-result:dev backend/result-service
+          docker push minhtri269/qms-result:dev
