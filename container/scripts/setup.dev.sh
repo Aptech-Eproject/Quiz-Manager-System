@@ -2,6 +2,10 @@
 
 echo "🚀 Setting up Quiz Application..."
 
+if [ ! -f archive/frontendOld/.env ]; then
+  cp archive/frontendOld/.env.example archive/frontendOld/.env
+  echo "✅ Created archive/frontendOld/.env"
+fi
 # Copy .env files if not exist
 if [ ! -f backend/api-gateway/.env ]; then
   cp container/env/gateway.env.example backend/api-gateway/.env
