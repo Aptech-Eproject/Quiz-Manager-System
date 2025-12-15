@@ -1,0 +1,113 @@
+version: "3.9"
+
+services:
+  # ---------------------------------------------------
+  # 🚪 API Gateway
+  # ---------------------------------------------------
+  gateway:
+    image: mintri269/qms-gateway:dev
+    container_name: gateway_image
+    ports:
+      - "8000:8000"     # public gateway
+    env_file:
+      - ../../backend/api-gateway/.env
+    depends_on:
+      - auth-service
+      - quiz-service
+      - result-service
+    networks:
+      - quiz-net
+
+  # ---------------------------------------------------
+  # 🔐 Auth Service
+  # ---------------------------------------------------
+  auth-service:
+    image: mintri269/qms-auth:dev
+    container_name: auth_service_image
+    expose:
+      - "5000"
+    env_file:
+      - ../../backend/auth-service/.env
+    depends_on:
+      mysql-db:
+        condition: service_healthy
+    networks:
+      - quiz-net
+
+  # ---------------------------------------------------
+  # 🧠 Quiz Service
+  # ---------------------------------------------------
+  quiz-service:
+    image: mintri269/qms-quiz:dev
+    container_name: quiz_service_image
+    expose:
+      - "5001"
+    env_file:
+      - ../../backend/quiz-service/.env
+    depends_on:
+      mysql-db:
+        condition: service_healthy
+    networks:
+      - quiz-net
+
+  # ---------------------------------------------------
+  # 📊 Result Service
+  # ---------------------------------------------------
+  result-service:
+    image: mintri269/qms-result:dev
+    container_name: result_service_image
+    expose:
+      - "5002"
+    env_file:
+      - ../../backend/result-service/.env
+    depends_on:
+      mysql-db:
+        condition: service_healthy
+    networks:
+      - quiz-net
+
+  # ---------------------------------------------------
+  # 🛢️ MySQL — Shared runtime
+  # ---------------------------------------------------
+  mysql-db:
+    image: mysql:8.0
+    container_name: mysql_image
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 30s
+    networks:
+      - quiz-net
+
+  # ---------------------------------------------------
+  # ⚡ Redis — Cache / Queue / Session
+  # ---------------------------------------------------
+  redis:
+    image: redis:7-alpine
+    container_name: redis_image
+    ports:
+      - "6379:6379"
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_data:/data
+    networks:
+      - quiz-net
+
+# ---------------------------------------------------
+# 🌐 Networks & Volumes
+# ---------------------------------------------------
+networks:
+  quiz-net:
+    name: quiz-net
+
+volumes:
+  mysql_data:
+  redis_data:
